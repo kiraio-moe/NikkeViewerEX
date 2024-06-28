@@ -166,3 +166,4 @@ crashlytics-build.properties
 *.log
 
 [Dd]ata/
+log.txt

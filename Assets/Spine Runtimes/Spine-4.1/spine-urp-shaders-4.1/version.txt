@@ -1,0 +1,1 @@
+Package version: com.esotericsoftware.spine.urp-shaders-4.1-Unity2019.3-2023-10-26.zip

@@ -1,0 +1,34 @@
+{
+  "name": "com.esotericsoftware.spine.urp-shaders-4.1",
+  "displayName": "Spine Universal RP Shaders",
+  "description": "This plugin provides universal render pipeline (URP) shaders for the spine-unity runtime.\n\nPrerequisites:\nIt requires a working installation of the spine-unity runtime, version 4.1.\n(See http://esotericsoftware.com/git/spine-runtimes/spine-unity)",
+  "version": "4.1.27",
+  "unity": "2019.3",
+  "author": {
+    "name": "Esoteric Software",
+    "email": "contact@esotericsoftware.com",
+    "url": "http://esotericsoftware.com/"
+  },
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "7.1.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kiraio-moe/spine-unity-hybrid.git"
+  },
+  "keywords": [
+    "spine",
+    "urp",
+    "universal",
+    "render pipeline",
+    "shaders"
+  ],
+  "hideInEditor": false,
+  "samples": [
+    {
+      "displayName": "Examples",
+      "description": "Contains examples for 2D and 3D Universal RP Spine shaders",
+      "path": "Samples~/Examples"
+    }
+  ]
+}

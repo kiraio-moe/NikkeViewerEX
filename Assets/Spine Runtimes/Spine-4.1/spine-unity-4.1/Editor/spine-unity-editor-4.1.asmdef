@@ -1,0 +1,19 @@
+{
+    "name": "spine-unity-editor-4.1",
+    "rootNamespace": "",
+    "references": [
+        "GUID:704ddc6f9bd77de4498e704bbbf969b3",
+        "GUID:8498ebef06f62464f81843ada7fae8fe"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
