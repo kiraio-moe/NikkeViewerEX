@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.gilzoide.serializable-collections": "https://github.com/gilzoide/unity-serializable-collections.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.inputsystem": "1.7.0",
@@ -10,6 +11,8 @@
     "com.unity.textmeshpro": "3.0.9",
     "com.unity.timeline": "1.7.6",
     "com.unity.ugui": "1.0.0",
+    "com.yasirkula.dynamicpanels": "https://github.com/yasirkula/UnityDynamicPanels.git",
+    "com.yasirkula.simplefilebrowser": "https://github.com/yasirkula/UnitySimpleFileBrowser.git",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",

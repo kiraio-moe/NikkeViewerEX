@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "fbe0bf85155f42f8832205f7b3ac3df571ada33e"
     },
+    "com.gilzoide.serializable-collections": {
+      "version": "https://github.com/gilzoide/unity-serializable-collections.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "e228d97a32e127018b4ba92b0c39c15721df62d4"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -181,6 +188,20 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "com.yasirkula.dynamicpanels": {
+      "version": "https://github.com/yasirkula/UnityDynamicPanels.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "46efccdefcf92771c57d8c4da858beccacfd7092"
+    },
+    "com.yasirkula.simplefilebrowser": {
+      "version": "https://github.com/yasirkula/UnitySimpleFileBrowser.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "07398a29da28adc0f074b5a364e5f209cf20285e"
     },
     "com.unity.modules.androidjni": {
       "version": "1.0.0",

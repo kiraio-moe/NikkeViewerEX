@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using Cysharp.Threading.Tasks;
+using Unity.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
-using Unity.Logging;
 
 namespace NikkeViewerEX.Utils
 {
@@ -22,7 +22,7 @@ namespace NikkeViewerEX.Utils
             try
             {
                 using UnityWebRequest uwr = UnityWebRequest.Get(url);
-                UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
+                UniTaskCompletionSource<string> tcs = new();
 
                 uwr.SendWebRequest().completed += _ =>
                 {
@@ -51,7 +51,7 @@ namespace NikkeViewerEX.Utils
             try
             {
                 using UnityWebRequest uwr = UnityWebRequest.Get(url);
-                UniTaskCompletionSource<byte[]> tcs = new UniTaskCompletionSource<byte[]>();
+                UniTaskCompletionSource<byte[]> tcs = new();
 
                 uwr.SendWebRequest().completed += _ =>
                 {
@@ -83,7 +83,7 @@ namespace NikkeViewerEX.Utils
                     url,
                     GetAudioType(url)
                 );
-                UniTaskCompletionSource<AudioClip> tcs = new UniTaskCompletionSource<AudioClip>();
+                UniTaskCompletionSource<AudioClip> tcs = new();
 
                 uwr.SendWebRequest().completed += _ =>
                 {

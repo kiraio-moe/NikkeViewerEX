@@ -1,7 +1,9 @@
 {
     "name": "NikkeViewerEX",
-    "rootNamespace": "NikkeViewerEX",
+    "rootNamespace": "",
     "references": [
+        "GUID:9549a713daafdf78c901be4123d723ac",
+        "GUID:c685d05731421f64287ad6d13be5af0e",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:2665a8d13d1b3f18800f46e256720795",
         "GUID:e0cd26848372d4e5c891c569017e11f1",

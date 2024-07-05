@@ -5,8 +5,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Spine;
 using Spine.Unity;
-using UnityEngine;
 using Unity.Logging;
+using UnityEngine;
 
 namespace NikkeViewerEX.Utils
 {
@@ -62,9 +62,9 @@ namespace NikkeViewerEX.Utils
         /// <summary>
         /// Add Spine Animation to GameObject.
         /// </summary>
-        /// <param name="rootPath">The root path of the Spine Skeleton assets.</param>
-        /// <param name="spineName">Base file name of the Spine Skeleton asset (without extension).</param>
-        /// <param name="spineImages">List of full paths to the Spine Skeleton texture assets.</param>
+        /// <param name="skelPath">Skeleton Animation asset path.</param>
+        /// <param name="atlasPath">Skeleton Atlas asset path.</param>
+        /// <param name="texturesPath">Skeleton textures asset path.</param>
         /// <param name="targetGameObject">The target GameObject to spawn Spine Skeleton Animation instance.</param>
         /// <param name="spineShader">The shader used for the Spine Skeleton Animation.</param>
         /// <param name="spineScale">The scale of the Spine Skeleton Animation.</param>
@@ -73,42 +73,33 @@ namespace NikkeViewerEX.Utils
         /// <param name="defaultAnimation">Default Spine Skeleton animation name to start.</param>
         /// <returns>The Skeleton Animation component it self.</returns>
         public static async Task<SkeletonAnimation> InstantiateSpine(
-            string rootPath,
-            string spineName,
-            List<string> spineImages,
+            string skelPath,
+            string atlasPath,
+            List<string> texturesPath,
             GameObject targetGameObject,
             Shader spineShader,
             float spineScale = 1f,
             float spineScaleMultiplier = 0.0115f,
             bool loop = false,
-            string defaultAnimation = "Start_Idle_01"
+            string defaultAnimation = "idle"
         )
         {
             try
             {
-                string spinePath = Path.Combine(rootPath, spineName);
-                string atlasPath = $"{spinePath}.atlas";
-                string skelPath = $"{spinePath}.skel";
-
                 // Get atlas
-                TextAsset atlasTextAsset = new TextAsset(
-                    await WebRequestHelper.GetTextData(atlasPath)
-                );
+                TextAsset atlasTextAsset = new(await WebRequestHelper.GetTextData(atlasPath));
 
                 // Get image textures
-                Texture2D[] imageTextures = new Texture2D[spineImages.Count];
+                Texture2D[] imageTextures = new Texture2D[texturesPath.Count];
                 byte[] imageData;
 
-                for (int i = 0; i < spineImages.Count; i++)
+                for (int i = 0; i < texturesPath.Count; i++)
                 {
-                    string imageName = spineImages[i];
-                    Texture2D imageTexture = new Texture2D(1, 1);
-                    imageData = await WebRequestHelper.GetBinaryData(
-                        Path.Combine(rootPath, $"{imageName}.png")
-                    );
+                    Texture2D imageTexture = new(1, 1);
+                    imageData = await WebRequestHelper.GetBinaryData(texturesPath[i]);
 
                     imageTexture.LoadImage(imageData);
-                    imageTexture.name = imageName;
+                    imageTexture.name = Path.GetFileNameWithoutExtension(texturesPath[i]);
                     imageTextures[i] = imageTexture;
                 }
 
@@ -119,15 +110,13 @@ namespace NikkeViewerEX.Utils
                     true
                 );
 
-                AtlasAttachmentLoader attachmentLoader = new AtlasAttachmentLoader(
-                    atlasAsset.GetAtlas()
-                );
-                SkeletonBinary skeletonBinary = new SkeletonBinary(attachmentLoader);
+                AtlasAttachmentLoader attachmentLoader = new(atlasAsset.GetAtlas());
+                SkeletonBinary skeletonBinary = new(attachmentLoader);
                 skeletonBinary.Scale *= spineScaleMultiplier;
                 skeletonBinary.Scale *= spineScale;
 
                 SkeletonData skeletonData = skeletonBinary.ReadSkeletonData(skelPath);
-                AnimationStateData animationStateData = new AnimationStateData(skeletonData);
+                AnimationStateData animationStateData = new(skeletonData);
                 SkeletonDataAsset skeletonDataAsset = CreateSkeletonDataAsset(
                     skeletonData,
                     animationStateData
@@ -158,18 +147,11 @@ namespace NikkeViewerEX.Utils
         /// <returns>Bone screen position.</returns>
         public static Vector2 BoneScreenPosition(SkeletonAnimation skeletonAnimation, string bone)
         {
-            // try
-            // {
             return Camera.main.WorldToScreenPoint(
                 skeletonAnimation
                     .skeleton.FindBone(bone)
                     .GetWorldPosition(skeletonAnimation.transform)
             );
-            // }
-            // catch
-            // {
-            //     return Vector2.negativeInfinity;
-            // }
         }
 
         /// <summary>
@@ -184,32 +166,24 @@ namespace NikkeViewerEX.Utils
             RectTransform rectTransform
         )
         {
-            // try
-            // {
-            Vector2 localPoint,
-                screenPoint = Camera.main.WorldToScreenPoint(
-                    skeletonAnimation
-                        .skeleton.FindBone(bone)
-                        .GetWorldPosition(skeletonAnimation.transform)
-                );
+            Vector2 screenPoint = Camera.main.WorldToScreenPoint(
+                skeletonAnimation
+                    .skeleton.FindBone(bone)
+                    .GetWorldPosition(skeletonAnimation.transform)
+            );
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rectTransform,
                 screenPoint,
                 Camera.main,
-                out localPoint
+                out Vector2 localPoint
             );
             return localPoint;
-            // }
-            // catch
-            // {
-            //     return Vector2.negativeInfinity;
-            // }
         }
 
         /// <summary>
         /// Loop through the provided bone names to get the available bone.
         /// Convert Bone world space coordinates into screen space coordinates (Screen Space - Overlay).
-        /// /// </summary>
+        /// </summary>
         /// <param name="skeletonAnimation">The target Skeleton Animation.</param>
         /// <param name="bone">Bone names list.</param>
         /// <returns>Bone screen position.</returns>

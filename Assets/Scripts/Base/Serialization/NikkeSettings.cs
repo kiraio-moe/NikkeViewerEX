@@ -6,7 +6,16 @@ namespace NikkeViewerEX.Serialization
     [Serializable]
     public class NikkeSettings
     {
-        public string nikkeName;
-        public List<string> nikkeTextures = new();
+        public List<Nikke> NikkeList = new();
+    }
+
+    [Serializable]
+    public class Nikke
+    {
+        public string NikkeName;
+        public string AssetName;
+        public string SkelPath;
+        public string AtlasPath;
+        public List<string> TexturesPath = new();
     }
 }

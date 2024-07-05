@@ -1,3 +1,6 @@
+using System.IO;
+using System.Text;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace NikkeViewerEX.Utils
@@ -7,6 +10,20 @@ namespace NikkeViewerEX.Utils
     /// </summary>
     public class SpineHelperBase
     {
+        /// <summary>
+        /// Get the Skeleton asset version.
+        /// </summary>
+        /// <param name="skelPath"></param>
+        /// <returns>Skeleton asset version.</returns>
+        public async UniTask<string> GetSkelVersion(string skelPath)
+        {
+            byte[] skelData = new byte[3];
+            await using FileStream fs = new(skelPath, FileMode.Open, FileAccess.Read);
+            fs.Seek(9, SeekOrigin.Begin);
+            fs.Read(skelData, 0, 3);
+            return Encoding.UTF8.GetString(skelData);
+        }
+
         /// <summary>
         /// Get distance between 2 vectors.
         /// </summary>
