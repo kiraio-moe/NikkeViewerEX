@@ -11,7 +11,7 @@ namespace NikkeViewerEX.Components
     {
         SkeletonAnimation skeletonAnimation;
 
-        void Awake()
+        void OnEnable()
         {
             MainControl.OnSettingsApplied += SpawnNikke;
         }
@@ -24,7 +24,10 @@ namespace NikkeViewerEX.Components
         async void SpawnNikke()
         {
             if (skeletonAnimation == null)
+            {
                 skeletonAnimation = await CreateNikke();
+                AddMeshCollider();
+            }
         }
 
         async UniTask<SkeletonAnimation> CreateNikke()

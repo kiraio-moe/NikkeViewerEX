@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using Gilzoide.SerializableCollections;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.UI;
@@ -56,6 +54,8 @@ namespace NikkeViewerEX.Core
                 NikkeListItem item in m_NikkeListContent.GetComponentsInChildren<NikkeListItem>()
             )
             {
+                if (item.Viewer != null && item.Viewer.GetComponent<MeshFilter>())
+                    return;
                 string nikkeName = item.NikkeNameText.text;
                 string skelPath = item.SkelPathText.text;
                 string atlasPath = item.AtlasPathText.text;

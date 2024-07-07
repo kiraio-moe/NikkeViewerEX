@@ -59,6 +59,8 @@ namespace NikkeViewerEX.UI
         /// </summary>
         public void RemoveNikke()
         {
+            if (Viewer != null)
+                Destroy(Viewer.gameObject);
             Destroy(gameObject);
         }
 

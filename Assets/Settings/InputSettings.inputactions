@@ -2,6 +2,67 @@
     "name": "InputSettings",
     "maps": [
         {
+            "name": "Nikke",
+            "id": "43e50b4d-4bc1-462a-b88d-8677d149c27b",
+            "actions": [
+                {
+                    "name": "PointerClick",
+                    "type": "PassThrough",
+                    "id": "02ff5083-5526-4a2f-8a6e-9c28c0ff4c78",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c78b30b9-d5ec-4a26-98c4-7f43231df5b1",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "PointerClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "522ad594-4d6b-4a89-b76a-05a3bc336c0a",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "PointerClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c64a0c23-c80a-4b46-9be1-1bce464724f4",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Touch",
+                    "action": "PointerClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "58bbef6a-9486-4b70-9425-7c6bd4e72da3",
+                    "path": "<Joystick>/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "PointerClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
             "name": "Player",
             "id": "b303c8db-6c6e-498f-a64b-acdd48ce4148",
             "actions": [
