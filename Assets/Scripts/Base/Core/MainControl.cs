@@ -70,11 +70,45 @@ namespace NikkeViewerEX.Core
             {
                 if (item.Viewer == null)
                 {
+                    string cacheSavePath = Path.Combine(
+                        StorageHelper.GetApplicationPath(),
+                        Directory.CreateDirectory("Data").Name
+                    );
                     string nikkeName = item.NikkeNameText.text;
-                    string skelPath = item.SkelPathText.text;
-                    string atlasPath = item.AtlasPathText.text;
-                    List<string> texturesPath =
-                        item.TexturesPathText.text.Split(", ").ToList() ?? null;
+                    string skelPath = item.SkelPathText.text.StartsWith("http")
+                        ? await CacheAsset(
+                            item.SkelPathText.text,
+                            Path.Combine(
+                                cacheSavePath,
+                                Path.GetFileName(new Uri(item.SkelPathText.text).AbsolutePath)
+                            )
+                        )
+                        : item.SkelPathText.text;
+                    string atlasPath = item.AtlasPathText.text.StartsWith("http")
+                        ? await CacheAsset(
+                            item.AtlasPathText.text,
+                            Path.Combine(
+                                cacheSavePath,
+                                Path.GetFileName(new Uri(item.AtlasPathText.text).AbsolutePath)
+                            )
+                        )
+                        : item.AtlasPathText.text;
+                    List<string> texturesPath = (
+                        await UniTask.WhenAll(
+                            item.TexturesPathText.text.Split(", ")
+                                .Select(async path =>
+                                    path.StartsWith("http")
+                                        ? await CacheAsset(
+                                            path,
+                                            Path.Combine(
+                                                cacheSavePath,
+                                                Path.GetFileName(new Uri(path).AbsolutePath)
+                                            )
+                                        )
+                                        : path
+                                )
+                        )
+                    ).ToList();
 
                     // Update the viewer data
                     NikkeViewerBase viewer = await InstantiateViewer(skelPath);
@@ -116,6 +150,15 @@ namespace NikkeViewerEX.Core
                     );
                     return null;
             }
+        }
+
+        async UniTask<string> CacheAsset(string uri, string savePath)
+        {
+            byte[] data = await WebRequestHelper.GetBinaryData(uri);
+            await using FileStream fs =
+                new(savePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            await fs.WriteAsync(data);
+            return savePath;
         }
 
         /// <summary>
