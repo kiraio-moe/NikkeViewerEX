@@ -14,11 +14,13 @@ namespace NikkeViewerEX.Components
         void OnEnable()
         {
             MainControl.OnSettingsApplied += SpawnNikke;
+            SettingsManager.OnSettingsLoaded += SpawnNikke;
         }
 
         void OnDestroy()
         {
             MainControl.OnSettingsApplied -= SpawnNikke;
+            SettingsManager.OnSettingsLoaded -= SpawnNikke;
         }
 
         async void SpawnNikke()

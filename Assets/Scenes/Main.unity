@@ -728,9 +728,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 782217228}
+    - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AddNikkeUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NikkeViewerEX.Core.MainControl, NikkeViewerEX
+      objectReference: {fileID: 0}
+    - target: {fileID: 1643752422455693536, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 1741697956421632112, guid: 0db083ce0d9ed444689ada55bef57902,
         type: 3}
       propertyPath: m_Value
@@ -883,9 +913,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 782217228}
+    - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ApplyNikkeSettings
+      objectReference: {fileID: 0}
+    - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NikkeViewerEX.Core.MainControl, NikkeViewerEX
+      objectReference: {fileID: 0}
+    - target: {fileID: 4722577428910157153, guid: 0db083ce0d9ed444689ada55bef57902,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 5566636024005255615, guid: 0db083ce0d9ed444689ada55bef57902,
         type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag

@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Components;
+using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
 using SimpleFileBrowser;
 using TMPro;
@@ -25,18 +27,22 @@ namespace NikkeViewerEX.UI
         public TMP_InputField NikkeNameText
         {
             get => m_NikkeNameText;
+            set => m_NikkeNameText = value;
         }
         public TMP_InputField SkelPathText
         {
             get => m_SkelPathText;
+            set => m_SkelPathText = value;
         }
         public TMP_InputField AtlasPathText
         {
             get => m_AtlasPathText;
+            set => m_AtlasPathText = value;
         }
         public TMP_InputField TexturesPathText
         {
             get => m_TexturesPathText;
+            set => m_TexturesPathText = value;
         }
 
         NikkeViewerBase viewer;
@@ -46,8 +52,11 @@ namespace NikkeViewerEX.UI
             set => viewer = value;
         }
 
-        void Start()
+        SettingsManager settingsManager;
+
+        void Awake()
         {
+            settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
             FileBrowser.SetFilters(
                 false,
                 new FileBrowser.Filter("Spine", ".skel", ".atlas", ".png")
@@ -60,7 +69,10 @@ namespace NikkeViewerEX.UI
         public void RemoveNikke()
         {
             if (Viewer != null)
+            {
+                settingsManager.NikkeSettings.NikkeList.Remove(Viewer.NikkeData);
                 Destroy(Viewer.gameObject);
+            }
             Destroy(gameObject);
         }
 

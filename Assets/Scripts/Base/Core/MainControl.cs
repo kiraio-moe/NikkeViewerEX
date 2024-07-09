@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Gilzoide.SerializableCollections;
 using NikkeViewerEX.Components;
+using NikkeViewerEX.Serialization;
 using NikkeViewerEX.UI;
 using NikkeViewerEX.Utils;
 using Unity.Logging;
@@ -12,6 +15,8 @@ using Logger = Unity.Logging.Logger;
 
 namespace NikkeViewerEX.Core
 {
+    [AddComponentMenu("Nikke Viewer EX/Core/Main Control")]
+    [RequireComponent(typeof(SettingsManager))]
     public class MainControl : MonoBehaviour
     {
         [Header("Spine Settings")]
@@ -31,17 +36,25 @@ namespace NikkeViewerEX.Core
         static readonly string logFileName = "log.txt";
         readonly SpineHelperBase spineHelper = new();
 
+        SettingsManager settingsManager;
+
         void Awake()
         {
             SetupLoggerConfig();
+            settingsManager = GetComponent<SettingsManager>();
         }
 
         /// <summary>
         /// Add Nikke to list.
         /// </summary>
-        public void AddNikke()
+        public void AddNikkeUI()
         {
-            Instantiate(m_NikkeListItem, m_NikkeListContent).GetComponent<NikkeListItem>();
+            AddNikke();
+        }
+
+        public NikkeListItem AddNikke()
+        {
+            return Instantiate(m_NikkeListItem, m_NikkeListContent).GetComponent<NikkeListItem>();
         }
 
         /// <summary>
@@ -50,69 +63,59 @@ namespace NikkeViewerEX.Core
         /// <returns></returns>
         public async void ApplyNikkeSettings()
         {
-            foreach (
-                NikkeListItem item in m_NikkeListContent.GetComponentsInChildren<NikkeListItem>()
-            )
-            {
-                if (item.Viewer != null && item.Viewer.GetComponent<MeshFilter>())
-                    return;
-                string nikkeName = item.NikkeNameText.text;
-                string skelPath = item.SkelPathText.text;
-                string atlasPath = item.AtlasPathText.text;
-                List<string> texturesPath = item.TexturesPathText.text.Split(", ").ToList() ?? null;
+            NikkeListItem[] listItems = m_NikkeListContent.GetComponentsInChildren<NikkeListItem>();
+            List<Nikke> nikkeDataList = new();
 
-                if (string.IsNullOrEmpty(skelPath))
+            foreach (NikkeListItem item in listItems)
+            {
+                if (item.Viewer == null)
                 {
-                    Log.Error("No .skel asset path provided!");
-                    if (string.IsNullOrEmpty(atlasPath))
+                    string nikkeName = item.NikkeNameText.text;
+                    string skelPath = item.SkelPathText.text;
+                    string atlasPath = item.AtlasPathText.text;
+                    List<string> texturesPath =
+                        item.TexturesPathText.text.Split(", ").ToList() ?? null;
+
+                    // Update the viewer data
+                    NikkeViewerBase viewer = await InstantiateViewer(skelPath);
+                    if (viewer != null)
                     {
-                        Log.Error("No .atlas asset path provided!");
-                        if (string.IsNullOrEmpty(texturesPath[0]))
-                        {
-                            Log.Error("No image textures path provided!");
-                            return;
-                        }
+                        viewer.NikkeData.NikkeName = nikkeName;
+                        viewer.NikkeData.AssetName = Path.GetFileNameWithoutExtension(skelPath);
+                        viewer.NikkeData.SkelPath = skelPath;
+                        viewer.NikkeData.AtlasPath = atlasPath;
+                        viewer.NikkeData.TexturesPath = texturesPath;
+                        item.Viewer = viewer; // Assign the Viewer
+
+                        // Just change the Game Objet name to make a distinction in the Editor.
+                        item.name = item.Viewer.name = string.IsNullOrEmpty(nikkeName)
+                            ? item.Viewer.NikkeData.AssetName
+                            : nikkeName;
+
+                        nikkeDataList.Add(item.Viewer.NikkeData);
                     }
                 }
+            }
 
-                string skelVersion = await spineHelper.GetSkelVersion(skelPath);
-                if (string.IsNullOrEmpty(skelVersion))
-                {
+            settingsManager.NikkeSettings.NikkeList = nikkeDataList;
+            OnSettingsApplied?.Invoke();
+        }
+
+        public async UniTask<NikkeViewerBase> InstantiateViewer(string skelPath)
+        {
+            string skelVersion = await spineHelper.GetSkelVersion(skelPath);
+            switch (skelVersion)
+            {
+                case "4.0":
+                    return Instantiate(m_NikkeVersions["4.0"]);
+                case "4.1":
+                    return Instantiate(m_NikkeVersions["4.1"]);
+                default:
                     Log.Error(
                         $"Unable to load Skeleton asset! Invalid Skeleton version: {skelVersion} in {skelPath}"
                     );
-                    return;
-                }
-
-                if (item.Viewer != null)
-                    Destroy(item.Viewer.gameObject);
-
-                NikkeViewerBase viewer = null;
-                switch (skelVersion)
-                {
-                    case "4.0":
-                        viewer = Instantiate(m_NikkeVersions["4.0"]);
-                        break;
-                    case "4.1":
-                        viewer = Instantiate(m_NikkeVersions["4.1"]);
-                        break;
-                }
-
-                // Update the viewer data
-                viewer.NikkeData.NikkeName = nikkeName;
-                viewer.NikkeData.AssetName = Path.GetFileNameWithoutExtension(skelPath);
-                viewer.NikkeData.SkelPath = skelPath;
-                viewer.NikkeData.AtlasPath = atlasPath;
-                viewer.NikkeData.TexturesPath = texturesPath;
-                item.Viewer = viewer; // Assign the Viewer
-
-                // Just change the Game Objet name to make a distinction in the Editor.
-                item.name = item.Viewer.name = string.IsNullOrEmpty(nikkeName)
-                    ? item.Viewer.NikkeData.AssetName
-                    : nikkeName;
+                    return null;
             }
-
-            OnSettingsApplied?.Invoke();
         }
 
         /// <summary>

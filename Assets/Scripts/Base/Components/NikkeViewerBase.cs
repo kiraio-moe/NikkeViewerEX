@@ -29,9 +29,13 @@ namespace NikkeViewerEX.Components
         {
             get => mainControl;
         }
+        SettingsManager settingsManager;
+        public SettingsManager SettingsManager
+        {
+            get => settingsManager;
+        }
 
         InputManager inputManager;
-
         readonly float dragSmoothTime = .1f;
         Vector2 dragObjectVelocity;
         Vector3 dragObjectOffset;
@@ -40,13 +44,16 @@ namespace NikkeViewerEX.Components
         {
             mainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
             inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
+            settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
 
             inputManager.PointerClick.started += MousePressed;
+            inputManager.PointerClick.canceled += SaveNikkePosition;
         }
 
         void OnDestroy()
         {
             inputManager.PointerClick.started -= MousePressed;
+            inputManager.PointerClick.canceled -= SaveNikkePosition;
         }
 
         public void AddMeshCollider()
@@ -65,6 +72,7 @@ namespace NikkeViewerEX.Components
         {
             if (IsLocked)
                 return;
+
             Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
@@ -75,8 +83,6 @@ namespace NikkeViewerEX.Components
 
         async UniTaskVoid DragUpdate(GameObject clickedObject)
         {
-            if (IsLocked)
-                return;
             float initialDistance = Vector3.Distance(
                 clickedObject.transform.position,
                 Camera.main.transform.position
@@ -96,8 +102,15 @@ namespace NikkeViewerEX.Components
                     ref dragObjectVelocity,
                     dragSmoothTime
                 );
+
                 await UniTask.Yield();
             }
+        }
+
+        void SaveNikkePosition(InputAction.CallbackContext ctx)
+        {
+            if (this != null)
+                NikkeData.Position = gameObject.transform.position;
         }
     }
 }
