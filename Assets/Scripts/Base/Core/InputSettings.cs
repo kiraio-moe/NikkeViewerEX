@@ -30,12 +30,21 @@ namespace NikkeViewerEX.Core
             ""id"": ""43e50b4d-4bc1-462a-b88d-8677d149c27b"",
             ""actions"": [
                 {
-                    ""name"": ""PointerClick"",
+                    ""name"": ""PointerHold"",
                     ""type"": ""PassThrough"",
                     ""id"": ""02ff5083-5526-4a2f-8a6e-9c28c0ff4c78"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": ""Hold"",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""PointerClick"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""d47a17b9-e7ef-458e-8f90-cc53d9ba5581"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Tap"",
                     ""initialStateCheck"": true
                 }
             ],
@@ -47,7 +56,7 @@ namespace NikkeViewerEX.Core
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""PointerClick"",
+                    ""action"": ""PointerHold"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -58,7 +67,7 @@ namespace NikkeViewerEX.Core
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
-                    ""action"": ""PointerClick"",
+                    ""action"": ""PointerHold"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -69,7 +78,7 @@ namespace NikkeViewerEX.Core
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Touch"",
-                    ""action"": ""PointerClick"",
+                    ""action"": ""PointerHold"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -80,6 +89,17 @@ namespace NikkeViewerEX.Core
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Joystick"",
+                    ""action"": ""PointerHold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f5639886-ac43-467a-bb18-ada14494ecab"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""PointerClick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -923,6 +943,7 @@ namespace NikkeViewerEX.Core
 }");
             // Nikke
             m_Nikke = asset.FindActionMap("Nikke", throwIfNotFound: true);
+            m_Nikke_PointerHold = m_Nikke.FindAction("PointerHold", throwIfNotFound: true);
             m_Nikke_PointerClick = m_Nikke.FindAction("PointerClick", throwIfNotFound: true);
             // Player
             m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
@@ -1002,11 +1023,13 @@ namespace NikkeViewerEX.Core
         // Nikke
         private readonly InputActionMap m_Nikke;
         private List<INikkeActions> m_NikkeActionsCallbackInterfaces = new List<INikkeActions>();
+        private readonly InputAction m_Nikke_PointerHold;
         private readonly InputAction m_Nikke_PointerClick;
         public struct NikkeActions
         {
             private @InputSettings m_Wrapper;
             public NikkeActions(@InputSettings wrapper) { m_Wrapper = wrapper; }
+            public InputAction @PointerHold => m_Wrapper.m_Nikke_PointerHold;
             public InputAction @PointerClick => m_Wrapper.m_Nikke_PointerClick;
             public InputActionMap Get() { return m_Wrapper.m_Nikke; }
             public void Enable() { Get().Enable(); }
@@ -1017,6 +1040,9 @@ namespace NikkeViewerEX.Core
             {
                 if (instance == null || m_Wrapper.m_NikkeActionsCallbackInterfaces.Contains(instance)) return;
                 m_Wrapper.m_NikkeActionsCallbackInterfaces.Add(instance);
+                @PointerHold.started += instance.OnPointerHold;
+                @PointerHold.performed += instance.OnPointerHold;
+                @PointerHold.canceled += instance.OnPointerHold;
                 @PointerClick.started += instance.OnPointerClick;
                 @PointerClick.performed += instance.OnPointerClick;
                 @PointerClick.canceled += instance.OnPointerClick;
@@ -1024,6 +1050,9 @@ namespace NikkeViewerEX.Core
 
             private void UnregisterCallbacks(INikkeActions instance)
             {
+                @PointerHold.started -= instance.OnPointerHold;
+                @PointerHold.performed -= instance.OnPointerHold;
+                @PointerHold.canceled -= instance.OnPointerHold;
                 @PointerClick.started -= instance.OnPointerClick;
                 @PointerClick.performed -= instance.OnPointerClick;
                 @PointerClick.canceled -= instance.OnPointerClick;
@@ -1271,6 +1300,7 @@ namespace NikkeViewerEX.Core
         }
         public interface INikkeActions
         {
+            void OnPointerHold(InputAction.CallbackContext context);
             void OnPointerClick(InputAction.CallbackContext context);
         }
         public interface IPlayerActions

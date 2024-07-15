@@ -50,21 +50,5 @@ MonoBehaviour:
     SkelPath: 
     AtlasPath: 
     TexturesPath: []
-  m_MouseClick:
-    m_Name: Mouse Click
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 9798a9f8-355e-44f2-8ffc-2c1203a9a58d
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 9a388398-f3c5-42e6-b121-519ea7286636
-      m_Path: 
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Mouse Click
-      m_Flags: 0
-    m_Flags: 0
-  dragSmoothTime: 0.1
+    Position: {x: 0, y: 0}
+  m_TouchAnimation: action

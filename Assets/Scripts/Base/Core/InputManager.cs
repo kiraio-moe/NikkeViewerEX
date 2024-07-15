@@ -9,6 +9,14 @@ namespace NikkeViewerEX.Core
     {
         InputSettings inputSettings;
         public InputAction PointerClick { get; private set; }
+        public InputAction PointerHold { get; private set; }
+
+        void Awake()
+        {
+            inputSettings = new();
+            PointerClick = inputSettings.Nikke.PointerClick;
+            PointerHold = inputSettings.Nikke.PointerHold;
+        }
 
         void OnEnable()
         {
@@ -18,12 +26,6 @@ namespace NikkeViewerEX.Core
         void OnDisable()
         {
             inputSettings.Disable();
-        }
-
-        void Awake()
-        {
-            inputSettings = new();
-            PointerClick = inputSettings.Nikke.PointerClick;
         }
     }
 }

@@ -6,12 +6,21 @@
             "id": "43e50b4d-4bc1-462a-b88d-8677d149c27b",
             "actions": [
                 {
-                    "name": "PointerClick",
+                    "name": "PointerHold",
                     "type": "PassThrough",
                     "id": "02ff5083-5526-4a2f-8a6e-9c28c0ff4c78",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Hold",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PointerClick",
+                    "type": "PassThrough",
+                    "id": "d47a17b9-e7ef-458e-8f90-cc53d9ba5581",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Tap",
                     "initialStateCheck": true
                 }
             ],
@@ -23,7 +32,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "PointerClick",
+                    "action": "PointerHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -34,7 +43,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "PointerClick",
+                    "action": "PointerHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -45,7 +54,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Touch",
-                    "action": "PointerClick",
+                    "action": "PointerHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -56,6 +65,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Joystick",
+                    "action": "PointerHold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f5639886-ac43-467a-bb18-ada14494ecab",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "PointerClick",
                     "isComposite": false,
                     "isPartOfComposite": false

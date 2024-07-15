@@ -3,24 +3,37 @@ using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
 using Spine.Unity;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace NikkeViewerEX.Components
 {
     [AddComponentMenu("Nikke Viewer EX/Components/Nikke Viewer 4.0")]
     public class NikkeViewer : NikkeViewerBase
     {
-        SkeletonAnimation skeletonAnimation;
+        [Header("Spine Settings")]
+        [SerializeField]
+        string m_DefaultAnimation = "idle";
 
-        void OnEnable()
+        [SerializeField]
+        string m_TouchAnimation = "action";
+
+        SkeletonAnimation skeletonAnimation;
+        bool allowInteraction = true;
+
+        public override void Awake()
         {
+            base.Awake();
             MainControl.OnSettingsApplied += SpawnNikke;
             SettingsManager.OnSettingsLoaded += SpawnNikke;
+            InputManager.PointerClick.performed += Interact;
         }
 
-        void OnDestroy()
+        public override void OnDestroy()
         {
+            base.OnDestroy();
             MainControl.OnSettingsApplied -= SpawnNikke;
             SettingsManager.OnSettingsLoaded -= SpawnNikke;
+            InputManager.PointerClick.performed -= Interact;
         }
 
         async void SpawnNikke()
@@ -43,6 +56,37 @@ namespace NikkeViewerEX.Components
                 spineScale: 0.25f,
                 loop: true
             );
+        }
+
+        void Interact(InputAction.CallbackContext ctx)
+        {
+            if (ctx.performed && allowInteraction)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.collider.TryGetComponent(out NikkeViewer viewer) && !IsDragged)
+                    {
+                        if (viewer == this)
+                        {
+                            allowInteraction = false;
+                            skeletonAnimation.AnimationState.SetAnimation(
+                                0,
+                                m_TouchAnimation,
+                                false
+                            );
+                            skeletonAnimation.AnimationState.AddAnimation(
+                                0,
+                                m_DefaultAnimation,
+                                true,
+                                0
+                            );
+                            skeletonAnimation.AnimationState.GetCurrent(0).Complete += _ =>
+                                allowInteraction = true;
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -34,26 +34,38 @@ namespace NikkeViewerEX.Components
         {
             get => settingsManager;
         }
-
         InputManager inputManager;
+        public InputManager InputManager
+        {
+            get => inputManager;
+        }
+
         readonly float dragSmoothTime = .1f;
         Vector2 dragObjectVelocity;
         Vector3 dragObjectOffset;
+        bool isDragged;
+        public bool IsDragged
+        {
+            get => isDragged;
+        }
 
-        void Awake()
+        public virtual void Awake()
         {
             mainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
             inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
-
-            inputManager.PointerClick.started += MousePressed;
-            inputManager.PointerClick.canceled += SaveNikkePosition;
         }
 
-        void OnDestroy()
+        public virtual void Start()
         {
-            inputManager.PointerClick.started -= MousePressed;
-            inputManager.PointerClick.canceled -= SaveNikkePosition;
+            inputManager.PointerHold.started += DragNikke;
+            inputManager.PointerHold.canceled += PostDragNikke;
+        }
+
+        public virtual void OnDestroy()
+        {
+            inputManager.PointerHold.started -= DragNikke;
+            inputManager.PointerHold.canceled -= PostDragNikke;
         }
 
         public void AddMeshCollider()
@@ -68,16 +80,18 @@ namespace NikkeViewerEX.Components
             }
         }
 
-        void MousePressed(InputAction.CallbackContext ctx)
+        void DragNikke(InputAction.CallbackContext ctx)
         {
-            if (IsLocked)
-                return;
-
-            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (ctx.started && !IsLocked)
             {
-                if (hit.collider != null)
-                    DragUpdate(hit.collider.gameObject).Forget();
+                Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.collider.TryGetComponent(out NikkeViewerBase _))
+                    {
+                        DragUpdate(hit.collider.gameObject).Forget();
+                    }
+                }
             }
         }
 
@@ -92,7 +106,7 @@ namespace NikkeViewerEX.Components
             Vector3 initialPoint = initialRay.GetPoint(initialDistance);
             dragObjectOffset = clickedObject.transform.position - initialPoint;
 
-            while (inputManager.PointerClick.ReadValue<float>() != 0)
+            while (inputManager.PointerHold.ReadValue<float>() != 0)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                 Vector3 targetPoint = ray.GetPoint(initialDistance) + dragObjectOffset;
@@ -102,15 +116,21 @@ namespace NikkeViewerEX.Components
                     ref dragObjectVelocity,
                     dragSmoothTime
                 );
-
+                isDragged = true;
                 await UniTask.Yield();
             }
+
+            // dragObjectVelocity = Vector2.zero;
         }
 
-        void SaveNikkePosition(InputAction.CallbackContext ctx)
+        void PostDragNikke(InputAction.CallbackContext ctx)
         {
-            if (this != null)
+            if (ctx.canceled && this != null)
+            {
                 NikkeData.Position = gameObject.transform.position;
+                dragObjectVelocity = Vector2.zero;
+                isDragged = false;
+            }
         }
     }
 }
