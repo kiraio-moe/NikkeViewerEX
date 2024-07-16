@@ -70,6 +70,14 @@ namespace NikkeViewerEX.Components
                         if (viewer == this)
                         {
                             allowInteraction = false;
+
+                            if (TouchVoices.Count > 0)
+                            {
+                                NikkeAudioSource.clip = TouchVoices[TouchVoiceIndex];
+                                NikkeAudioSource.Play();
+                                TouchVoiceIndex = (TouchVoiceIndex + 1) % TouchVoices.Count;
+                            }
+
                             skeletonAnimation.AnimationState.SetAnimation(
                                 0,
                                 m_TouchAnimation,
@@ -81,8 +89,11 @@ namespace NikkeViewerEX.Components
                                 true,
                                 0
                             );
-                            skeletonAnimation.AnimationState.GetCurrent(0).Complete += _ =>
+                            skeletonAnimation.AnimationState.GetCurrent(0).Complete += async _ =>
+                            {
+                                await UniTask.WaitUntil(() => !NikkeAudioSource.isPlaying);
                                 allowInteraction = true;
+                            };
                         }
                     }
                 }

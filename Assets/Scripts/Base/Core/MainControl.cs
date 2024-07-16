@@ -21,46 +21,33 @@ namespace NikkeViewerEX.Core
     {
         [Header("Spine Settings")]
         [SerializeField]
-        SerializableDictionary<string, NikkeViewerBase> m_NikkeVersions = new();
+        private SerializableDictionary<string, NikkeViewerBase> m_NikkeVersions = new();
 
         [Header("UI")]
         [SerializeField]
-        RectTransform m_NikkeListContent;
+        private RectTransform m_NikkeListContent;
 
         [SerializeField]
-        RectTransform m_NikkeListItem;
+        private RectTransform m_NikkeListItem;
 
         public delegate void OnSettingsAppliedHandler();
         public event OnSettingsAppliedHandler OnSettingsApplied;
 
-        static readonly string logFileName = "log.txt";
-        readonly SpineHelperBase spineHelper = new();
+        private static readonly string logFileName = "log.txt";
+        private readonly SpineHelperBase spineHelper = new();
+        private SettingsManager settingsManager;
 
-        SettingsManager settingsManager;
-
-        void Awake()
+        private void Awake()
         {
             SetupLoggerConfig();
             settingsManager = GetComponent<SettingsManager>();
         }
 
-        /// <summary>
-        /// Add Nikke to list.
-        /// </summary>
-        public void AddNikkeUI()
-        {
-            AddNikke();
-        }
+        public void AddNikkeUI() => AddNikke();
 
-        public NikkeListItem AddNikke()
-        {
-            return Instantiate(m_NikkeListItem, m_NikkeListContent).GetComponent<NikkeListItem>();
-        }
+        public NikkeListItem AddNikke() =>
+            Instantiate(m_NikkeListItem, m_NikkeListContent).GetComponent<NikkeListItem>();
 
-        /// <summary>
-        /// Apply Nikke settings.
-        /// </summary>
-        /// <returns></returns>
         public async void ApplyNikkeSettings()
         {
             NikkeListItem[] listItems = m_NikkeListContent.GetComponentsInChildren<NikkeListItem>();
@@ -70,58 +57,29 @@ namespace NikkeViewerEX.Core
             {
                 if (item.Viewer == null)
                 {
-                    string cacheSavePath = Path.Combine(
-                        StorageHelper.GetApplicationPath(),
-                        Directory.CreateDirectory("Data").Name
-                    );
                     string nikkeName = item.NikkeNameText.text;
-                    string skelPath = item.SkelPathText.text.StartsWith("http")
-                        ? await CacheAsset(
-                            item.SkelPathText.text,
-                            Path.Combine(
-                                cacheSavePath,
-                                Path.GetFileName(new Uri(item.SkelPathText.text).AbsolutePath)
-                            )
-                        )
-                        : item.SkelPathText.text;
-                    string atlasPath = item.AtlasPathText.text.StartsWith("http")
-                        ? await CacheAsset(
-                            item.AtlasPathText.text,
-                            Path.Combine(
-                                cacheSavePath,
-                                Path.GetFileName(new Uri(item.AtlasPathText.text).AbsolutePath)
-                            )
-                        )
-                        : item.AtlasPathText.text;
-                    List<string> texturesPath = (
-                        await UniTask.WhenAll(
-                            item.TexturesPathText.text.Split(", ")
-                                .Select(async path =>
-                                    path.StartsWith("http")
-                                        ? await CacheAsset(
-                                            path,
-                                            Path.Combine(
-                                                cacheSavePath,
-                                                Path.GetFileName(new Uri(path).AbsolutePath)
-                                            )
-                                        )
-                                        : path
-                                )
-                        )
-                    ).ToList();
+                    string skelPath = await GetAssetPath(item.SkelPathText.text);
+                    string atlasPath = await GetAssetPath(item.AtlasPathText.text);
+                    List<string> texturesPath = await GetAssetsPath(item.TexturesPathText.text);
+                    List<string> voicesSource = string.IsNullOrEmpty(item.VoicesSourceText.text)
+                        ? new List<string>()
+                        : item.VoicesSourceText.text.Split(", ").ToList();
 
-                    // Update the viewer data
                     NikkeViewerBase viewer = await InstantiateViewer(skelPath);
                     if (viewer != null)
                     {
-                        viewer.NikkeData.NikkeName = nikkeName;
-                        viewer.NikkeData.AssetName = Path.GetFileNameWithoutExtension(skelPath);
-                        viewer.NikkeData.SkelPath = skelPath;
-                        viewer.NikkeData.AtlasPath = atlasPath;
-                        viewer.NikkeData.TexturesPath = texturesPath;
-                        item.Viewer = viewer; // Assign the Viewer
-
-                        // Just change the Game Objet name to make a distinction in the Editor.
+                        viewer.NikkeData = new Nikke
+                        {
+                            NikkeName = nikkeName,
+                            AssetName = Path.GetFileNameWithoutExtension(skelPath),
+                            SkelPath = skelPath,
+                            AtlasPath = atlasPath,
+                            TexturesPath = texturesPath,
+                            VoicesSource = voicesSource,
+                            VoicesPath = await GetVoicesPath(voicesSource)
+                        };
+                        viewer.TouchVoices = await CacheTouchVoices(viewer.NikkeData.VoicesPath);
+                        item.Viewer = viewer;
                         item.name = item.Viewer.name = string.IsNullOrEmpty(nikkeName)
                             ? item.Viewer.NikkeData.AssetName
                             : nikkeName;
@@ -129,43 +87,137 @@ namespace NikkeViewerEX.Core
                         nikkeDataList.Add(item.Viewer.NikkeData);
                     }
                 }
+                else
+                {
+                    if (
+                        item.Viewer.NikkeData.VoicesSource.Count == 0
+                        && !string.IsNullOrEmpty(item.VoicesSourceText.text)
+                    )
+                    {
+                        item.Viewer.NikkeData.VoicesSource = item
+                            .VoicesSourceText.text.Split(", ")
+                            .ToList();
+                        item.Viewer.NikkeData.VoicesPath = await GetVoicesPath(
+                            item.Viewer.NikkeData.VoicesSource
+                        );
+                        item.Viewer.TouchVoices = await CacheTouchVoices(
+                            item.Viewer.NikkeData.VoicesPath
+                        );
+                    }
+                }
             }
 
             settingsManager.NikkeSettings.NikkeList = nikkeDataList;
             OnSettingsApplied?.Invoke();
+            await settingsManager.SaveSettings();
         }
+
+        private async UniTask<string> GetAssetPath(string path) =>
+            WebRequestHelper.IsHttp(path)
+                ? await WebRequestHelper.CacheAsset(
+                    path,
+                    Path.Combine(
+                        settingsManager.CachedDataDirectory,
+                        Path.GetFileName(new Uri(path).AbsolutePath)
+                    )
+                )
+                : path;
+
+        private async UniTask<List<string>> GetAssetsPath(string paths) =>
+            (await UniTask.WhenAll(paths.Split(", ").Select(GetAssetPath))).ToList();
 
         public async UniTask<NikkeViewerBase> InstantiateViewer(string skelPath)
         {
             string skelVersion = await spineHelper.GetSkelVersion(skelPath);
-            switch (skelVersion)
+            return skelVersion switch
             {
-                case "4.0":
-                    return Instantiate(m_NikkeVersions["4.0"]);
-                case "4.1":
-                    return Instantiate(m_NikkeVersions["4.1"]);
-                default:
-                    Log.Error(
-                        $"Unable to load Skeleton asset! Invalid Skeleton version: {skelVersion} in {skelPath}"
-                    );
-                    return null;
-            }
+                "4.0" => Instantiate(m_NikkeVersions["4.0"]),
+                "4.1" => Instantiate(m_NikkeVersions["4.1"]),
+                _ => LogErrorAndReturnNull(skelVersion, skelPath)
+            };
         }
 
-        async UniTask<string> CacheAsset(string uri, string savePath)
+        private static NikkeViewerBase LogErrorAndReturnNull(string skelVersion, string skelPath)
         {
-            byte[] data = await WebRequestHelper.GetBinaryData(uri);
-            await using FileStream fs =
-                new(savePath, FileMode.Create, FileAccess.Write, FileShare.Read);
-            await fs.WriteAsync(data);
-            return savePath;
+            Log.Error(
+                $"Unable to load Skeleton asset! Invalid Skeleton version: {skelVersion} in {skelPath}"
+            );
+            return null;
         }
 
-        /// <summary>
-        /// Setup logger configurations.
-        /// </summary>
+        private async UniTask<List<string>> GetVoicesPath(List<string> sources)
+        {
+            List<string> voicesPath = new();
+            foreach (string source in sources)
+            {
+                if (string.IsNullOrEmpty(source))
+                    continue;
+                if (WebRequestHelper.IsHttp(source))
+                {
+                    try
+                    {
+                        voicesPath.AddRange(
+                            JsonUtility.FromJson<List<string>>(
+                                await WebRequestHelper.GetTextData(source)
+                            )
+                        );
+                        await UniTask.WhenAll(
+                            voicesPath.Select(path =>
+                                WebRequestHelper.CacheAsset(
+                                    path,
+                                    Path.Combine(
+                                        settingsManager.CachedDataDirectory,
+                                        Path.GetFileName(new Uri(path).AbsolutePath)
+                                    )
+                                )
+                            )
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Unable to retrieve JSON data: {source} {ex.Message}");
+                    }
+                }
+                else
+                {
+                    voicesPath.AddRange(
+                        Directory
+                            .EnumerateFiles(source, "*.*", SearchOption.AllDirectories)
+                            .Where(file =>
+                                settingsManager.SupportedAudioFiles.Contains(
+                                    Path.GetExtension(file).ToLower()
+                                )
+                            )
+                            .ToList()
+                    );
+                }
+            }
+            return voicesPath;
+        }
+
+        // private async UniTask<List<AudioClip>> CacheTouchVoices(List<string> sources) => (await UniTask.WhenAll(sources.Select(async path => WebRequestHelper.GetAudioClip(await GetCachedPath(path))))).ToList();
+        private async UniTask<List<AudioClip>> CacheTouchVoices(List<string> sources) =>
+            (
+                await UniTask.WhenAll(
+                    sources.Select(async path =>
+                        await WebRequestHelper.GetAudioClip(await GetCachedPath(path))
+                    )
+                )
+            ).ToList();
+
+        private async UniTask<string> GetCachedPath(string path) =>
+            WebRequestHelper.IsHttp(path)
+                ? await WebRequestHelper.CacheAsset(
+                    path,
+                    Path.Combine(
+                        settingsManager.CachedDataDirectory,
+                        Path.GetFileName(new Uri(path).AbsolutePath)
+                    )
+                )
+                : path;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static void SetupLoggerConfig()
+        private static void SetupLoggerConfig()
         {
             Log.Logger = new Logger(
                 new LoggerConfig()
@@ -176,7 +228,7 @@ namespace NikkeViewerEX.Core
                         "[{Timestamp}] <b>[{Level}]</b> <b>{Message}</b>{NewLine}<i>{Stacktrace}</i>"
                     )
                     .WriteTo.File(
-                        $"{Path.Combine(StorageHelper.GetApplicationPath(), logFileName)}",
+                        Path.Combine(StorageHelper.GetApplicationPath(), logFileName),
                         minLevel: LogLevel.Verbose
                     )
                     .WriteTo.UnityEditorConsole()

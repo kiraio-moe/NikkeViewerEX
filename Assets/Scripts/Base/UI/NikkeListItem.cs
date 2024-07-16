@@ -24,6 +24,9 @@ namespace NikkeViewerEX.UI
         [SerializeField]
         TMP_InputField m_TexturesPathText;
 
+        [SerializeField]
+        TMP_InputField m_VoicesSourceText;
+
         public TMP_InputField NikkeNameText
         {
             get => m_NikkeNameText;
@@ -43,6 +46,11 @@ namespace NikkeViewerEX.UI
         {
             get => m_TexturesPathText;
             set => m_TexturesPathText = value;
+        }
+        public TMP_InputField VoicesSourceText
+        {
+            get => m_VoicesSourceText;
+            set => m_VoicesSourceText = value;
         }
 
         NikkeViewerBase viewer;
@@ -88,16 +96,26 @@ namespace NikkeViewerEX.UI
         public void OpenFileDialog(TMP_InputField inputField)
         {
             FileBrowser.ShowLoadDialog(
-                (paths) =>
-                {
-                    inputField.text = string.Join(", ", paths);
-                },
+                (paths) => inputField.text = string.Join(", ", paths),
                 () => { },
                 FileBrowser.PickMode.Files,
                 true,
                 StorageHelper.GetApplicationPath(),
                 null,
                 "Load Nikke Assets"
+            );
+        }
+
+        public void OpenDirectoryDialog(TMP_InputField inputField)
+        {
+            FileBrowser.ShowLoadDialog(
+                (paths) => inputField.text = string.Join(", ", paths),
+                () => { },
+                FileBrowser.PickMode.Folders,
+                true,
+                StorageHelper.GetApplicationPath(),
+                null,
+                "Load Nikke Directory Asset"
             );
         }
     }

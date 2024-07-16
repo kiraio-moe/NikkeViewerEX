@@ -632,6 +632,7 @@ GameObject:
   - component: {fileID: 8742973078753291053}
   - component: {fileID: 3084601723067691633}
   - component: {fileID: 5348664678102671750}
+  - component: {fileID: 6920532738487229158}
   m_Layer: 5
   m_Name: Settings
   m_TagString: Untagged
@@ -749,6 +750,18 @@ MonoBehaviour:
     type: 3}
   diagonalCursorTopRight: {fileID: 2800000, guid: e5a757b3ef912a24c912a99d9e1befe5,
     type: 3}
+--- !u!225 &6920532738487229158
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3813828097800060914}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3860779549330579823
 GameObject:
   m_ObjectHideFlags: 0

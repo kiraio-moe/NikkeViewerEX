@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Serialization;
@@ -9,8 +10,7 @@ namespace NikkeViewerEX.Components
     public abstract class NikkeViewerBase : MonoBehaviour
     {
         [SerializeField]
-        Nikke m_NikkeData;
-
+        Nikke m_NikkeData = new();
         public Nikke NikkeData
         {
             get => m_NikkeData;
@@ -49,23 +49,42 @@ namespace NikkeViewerEX.Components
             get => isDragged;
         }
 
+        AudioSource nikkeAudioSource;
+        public AudioSource NikkeAudioSource
+        {
+            get => nikkeAudioSource;
+        }
+        List<AudioClip> touchVoices = new();
+        public List<AudioClip> TouchVoices
+        {
+            get => touchVoices;
+            set => touchVoices = value;
+        }
+        int touchVoiceIndex = 0;
+        public int TouchVoiceIndex
+        {
+            get => touchVoiceIndex;
+            set => touchVoiceIndex = value;
+        }
+
         public virtual void Awake()
         {
             mainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
             inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
+            nikkeAudioSource = GetComponent<AudioSource>();
         }
 
         public virtual void Start()
         {
             inputManager.PointerHold.started += DragNikke;
-            inputManager.PointerHold.canceled += PostDragNikke;
+            // inputManager.PointerHold.canceled += PostDragNikke;
         }
 
         public virtual void OnDestroy()
         {
             inputManager.PointerHold.started -= DragNikke;
-            inputManager.PointerHold.canceled -= PostDragNikke;
+            // inputManager.PointerHold.canceled -= PostDragNikke;
         }
 
         public void AddMeshCollider()
@@ -120,16 +139,17 @@ namespace NikkeViewerEX.Components
                 await UniTask.Yield();
             }
 
-            // dragObjectVelocity = Vector2.zero;
+            PostDragNikke();
         }
 
-        void PostDragNikke(InputAction.CallbackContext ctx)
+        void PostDragNikke()
         {
-            if (ctx.canceled && this != null)
+            if (this != null)
             {
                 NikkeData.Position = gameObject.transform.position;
                 dragObjectVelocity = Vector2.zero;
                 isDragged = false;
+                settingsManager.SaveSettings().Forget();
             }
         }
     }

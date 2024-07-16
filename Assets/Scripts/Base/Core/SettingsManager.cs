@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Serialization;
@@ -21,22 +22,39 @@ namespace NikkeViewerEX.Core
         [SerializeField]
         string m_SettingsFile = "settings.json";
 
-        NikkeSettings nikkeSettings;
-        public NikkeSettings NikkeSettings
-        {
-            get => nikkeSettings;
-            set => nikkeSettings = value;
-        }
+        [SerializeField]
+        string m_CachedDataDirectoryName = "cache";
+
+        [SerializeField]
+        string[] m_SupportedAudioFiles = { ".mp3", ".ogg", ".wav" };
+
         public int FPS
         {
             get => m_FPS;
             set => m_FPS = value;
         }
+        NikkeSettings nikkeSettings = new();
+        public NikkeSettings NikkeSettings
+        {
+            get => nikkeSettings;
+            set => nikkeSettings = value;
+        }
+        string cachedDataDirectory;
+        public string CachedDataDirectory
+        {
+            get => cachedDataDirectory;
+        }
+        public string[] SupportedAudioFiles
+        {
+            get => m_SupportedAudioFiles;
+            set => m_SupportedAudioFiles = value;
+        }
 
         public delegate void OnSettingsLoadedHandler();
         public event OnSettingsLoadedHandler OnSettingsLoaded;
-        MainControl mainControl;
+
         string settingsFilePath;
+        MainControl mainControl;
 
         void OnValidate()
         {
@@ -52,20 +70,24 @@ namespace NikkeViewerEX.Core
 
         async UniTaskVoid Setup()
         {
-            NikkeSettings = new();
             settingsFilePath = Path.Combine(StorageHelper.GetApplicationPath(), m_SettingsFile);
+            cachedDataDirectory = Path.Combine(
+                StorageHelper.GetApplicationPath(),
+                Directory.CreateDirectory(m_CachedDataDirectoryName).Name
+            );
+
             if (File.Exists(settingsFilePath))
             {
-                NikkeSettings = await LoadSettings();
+                NikkeSettings = await LoadSettings() ?? new();
                 if (NikkeSettings != null)
                 {
-                    LoadSettingsOnStart();
+                    LoadSaveData().Forget();
                     SetFrameRate(NikkeSettings.FPS);
                 }
             }
         }
 
-        void LoadSettingsOnStart()
+        async UniTaskVoid LoadSaveData()
         {
             foreach (Nikke nikkeData in NikkeSettings.NikkeList)
             {
@@ -75,6 +97,7 @@ namespace NikkeViewerEX.Core
                 item.SkelPathText.text = nikkeData.SkelPath;
                 item.AtlasPathText.text = nikkeData.AtlasPath;
                 item.TexturesPathText.text = string.Join(", ", nikkeData.TexturesPath);
+                item.VoicesSourceText.text = string.Join(", ", nikkeData.VoicesSource);
                 FPS = NikkeSettings.FPS;
 
                 // Update the viewer data
@@ -82,9 +105,26 @@ namespace NikkeViewerEX.Core
                     .InstantiateViewer(nikkeData.SkelPath)
                     .AsValueTask()
                     .Result;
-                viewer.NikkeData = nikkeData;
-                viewer.gameObject.transform.position = nikkeData.Position;
                 item.Viewer = viewer;
+                item.Viewer.NikkeData = nikkeData;
+                item.Viewer.gameObject.transform.position = item.Viewer.NikkeData.Position;
+                item.Viewer.TouchVoices = (
+                    await UniTask.WhenAll(
+                        nikkeData.VoicesPath.Select(async path =>
+                            await WebRequestHelper.GetAudioClip(
+                                WebRequestHelper.IsHttp(path)
+                                    ? await WebRequestHelper.CacheAsset(
+                                        path,
+                                        Path.Combine(
+                                            cachedDataDirectory,
+                                            Path.GetFileName(new Uri(path).AbsolutePath)
+                                        )
+                                    )
+                                    : path
+                            )
+                        )
+                    )
+                ).ToList();
 
                 // Change GameObject name
                 item.name = viewer.name = string.IsNullOrEmpty(nikkeData.NikkeName)
@@ -93,8 +133,6 @@ namespace NikkeViewerEX.Core
             }
 
             OnSettingsLoaded?.Invoke();
-            Application.focusChanged += _ => SaveSettings().Forget();
-            Application.quitting += () => SaveSettings().Forget();
         }
 
         public async UniTask<string> SaveSettings()
@@ -108,7 +146,7 @@ namespace NikkeViewerEX.Core
                     using FileStream fs =
                         new(
                             settingsFilePath,
-                            FileMode.Truncate,
+                            FileMode.Create,
                             FileAccess.Write,
                             FileShare.ReadWrite
                         );
@@ -116,6 +154,7 @@ namespace NikkeViewerEX.Core
                     writer.Write(settings);
                 });
 
+                Debug.Log("Settings saved");
                 return settings;
             }
             catch (Exception ex)

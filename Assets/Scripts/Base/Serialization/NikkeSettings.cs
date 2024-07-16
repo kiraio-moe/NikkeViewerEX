@@ -19,6 +19,8 @@ namespace NikkeViewerEX.Serialization
         public string SkelPath;
         public string AtlasPath;
         public List<string> TexturesPath = new();
+        public List<string> VoicesSource = new();
+        public List<string> VoicesPath = new();
         public Vector2 Position;
     }
 }

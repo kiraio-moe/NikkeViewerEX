@@ -117,5 +117,37 @@ namespace NikkeViewerEX.Utils
                 _ => AudioType.UNKNOWN,
             };
         }
+
+        /// <summary>
+        /// Check if string is an HTTP protocol.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static bool IsHttp(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return false;
+
+            return url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Save asset from the internet locally.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="savePath"></param>
+        /// <returns></returns>
+        public static async UniTask<string> CacheAsset(string uri, string savePath)
+        {
+            if (File.Exists(savePath))
+                return savePath;
+
+            byte[] data = await GetBinaryData(uri);
+            await using FileStream fs =
+                new(savePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            await fs.WriteAsync(data);
+            return savePath;
+        }
     }
 }
