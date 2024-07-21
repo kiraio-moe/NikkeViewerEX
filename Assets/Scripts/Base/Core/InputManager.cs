@@ -7,25 +7,25 @@ namespace NikkeViewerEX.Core
     [RequireComponent(typeof(PlayerInput))]
     public class InputManager : MonoBehaviour
     {
-        InputSettings inputSettings;
         public InputAction PointerClick { get; private set; }
         public InputAction PointerHold { get; private set; }
+        public InputAction ToggleUI { get; private set; }
+
+        PlayerInput playerInput;
 
         void Awake()
         {
-            inputSettings = new();
-            PointerClick = inputSettings.Nikke.PointerClick;
-            PointerHold = inputSettings.Nikke.PointerHold;
+            playerInput = GetComponent<PlayerInput>();
+            playerInput.actions.Enable();
+
+            PointerClick = playerInput.actions.FindActionMap("Nikke").FindAction("PointerClick");
+            PointerHold = playerInput.actions.FindActionMap("Nikke").FindAction("PointerHold");
+            ToggleUI = playerInput.actions.FindActionMap("UI").FindAction("ToggleUI");
         }
 
-        void OnEnable()
+        void OnDestroy()
         {
-            inputSettings.Enable();
-        }
-
-        void OnDisable()
-        {
-            inputSettings.Disable();
+            playerInput.actions.Disable();
         }
     }
 }

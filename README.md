@@ -1,35 +1,39 @@
 # Nikke Viewer EX
 
-Nikke Viewer EX is a tool to preview GODDESS OF VICTORY: NIKKE characters interactively.
+Nikke Viewer EX is an interactive tool designed for previewing characters from the game GODDESS OF VICTORY: NIKKE. This viewer allows users to engage with character models through Live 2D (Spine 2D) animations with audio, providing an immersive and dynamic experience.
 
 ![Nikke Viewer EX preview](./preview.png "Nikke Viewer EX preview")
 
 ## Features
 
-- Interactable Live 2D (Spine) + audio.
-  - Potrait ✅
-  - Cover 🚧
-  - Aim 🚧
-- Preview 3D Mesh with animations. 🚧
-- Live Wallpaper-able. 🚧
+- Interactable Live 2D:
+  - Portraits ✅
+  - Covers 🚧
+  - Aiming 🚧
+- Preview 3D Mesh with Animations 🚧
+- Live Wallpaper Support ✅
 
-## Usages
+## How to Use
 
-- Add a Nikke to `Nikke List` by clicking **Add** button.
-- Fill in the asset fields by browsing the local asset from your device using browse button ⬜ or from the internet by typing the address manually.
-  - Skel: Select an asset or address end with `.skel` extension.
-  - Atlas: Select an asset or address end with `.atlas` extension.
-  - Textures: Select an asset or address end with `.png` extension.
-  - Voices (Optional): Select a directory that contains audio files. If you grab the assets from the internet, the server must returned a JSON data or directly point the address to a `.json` file containing the paths to the asset. Supported audio files are `.mp3`, `.ogg`, `.wav`.
-  - You can name the Nikke to easily distinguish it from the others.
-- Apply the settings by clicking **Apply** button.
-- Move Nikke by drag & drop with left mouse button.
-- Interact with Nikke by clicking with left mouse button.
-- Hide/Show main control by hovering your mouse to the left edge until a red line indicator showed up then click it.
+1. Adding a Nikke to the Nikke List:
+    - Click the **Add** button.
+    - Browse and select the local assets from your device using the browse button ⬜ or enter the URL directly.
+2. Setting Up Assets:
+    - Skel: Select an asset or URL ending with `.skel`.
+    - Atlas: Select an asset or URL ending with `.atlas`.
+    - Textures: Choose assets or URLs ending with `.png`.
+    - Voices (Optional): Select a directory containing audio files. Ensure the server returns JSON data or directly link to a `.json` file listing the audio file paths. Supported formats include `.mp3`, `.ogg`, `.wav`.
+    - ~~Naming Your Nikke: Give your Nikke a name for easy identification.~~
+3. Applying Settings:
+    - Click the **Apply** button to save your settings.
+4. Interacting with Nikke:
+    - Move Nikke by **clicking** and **holding** with the `Left Mouse` button, then drag and drop.
+    - Interact with Nikke by **clicking** with the `Left Mouse` button.
+    - Toggle the main control panel visibility using the `Tab` key.
 
-## Contribute
+## Contributing
 
-Feel free to contribute to this project in any ways possible! Don't hesitate ;)
+We welcome contributions to enhance this project! Feel free to suggest improvements, report bugs, or submit pull requests. Don't hesitate ;)
 
 ## Licenses
 

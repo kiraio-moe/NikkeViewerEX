@@ -65,10 +65,19 @@ namespace NikkeViewerEX.Core
         void Awake()
         {
             mainControl = GetComponent<MainControl>();
-            Setup().Forget();
         }
 
-        async UniTaskVoid Setup()
+        async void Start()
+        {
+            await Setup();
+        }
+
+        async void OnDestroy()
+        {
+            await SaveSettings();
+        }
+
+        async UniTask Setup()
         {
             settingsFilePath = Path.Combine(StorageHelper.GetApplicationPath(), m_SettingsFile);
             cachedDataDirectory = Path.Combine(
@@ -80,15 +89,16 @@ namespace NikkeViewerEX.Core
             {
                 NikkeSettings = await LoadSettings() ?? new();
                 if (NikkeSettings != null)
-                {
-                    LoadSaveData().Forget();
-                    SetFrameRate(NikkeSettings.FPS);
-                }
+                    await LoadSaveData();
             }
         }
 
-        async UniTaskVoid LoadSaveData()
+        async UniTask LoadSaveData()
         {
+            mainControl.InitInfoUI.gameObject.SetActive(NikkeSettings.IsFirstTime);
+            mainControl.ToggleUI(NikkeSettings.HideUI);
+            SetFrameRate(NikkeSettings.FPS);
+
             foreach (Nikke nikkeData in NikkeSettings.NikkeList)
             {
                 // Update UI
@@ -140,7 +150,6 @@ namespace NikkeViewerEX.Core
             try
             {
                 string settings = JsonUtility.ToJson(nikkeSettings);
-
                 await UniTask.RunOnThreadPool(() =>
                 {
                     using FileStream fs =
@@ -153,8 +162,6 @@ namespace NikkeViewerEX.Core
                     using StreamWriter writer = new(fs);
                     writer.Write(settings);
                 });
-
-                Debug.Log("Settings saved");
                 return settings;
             }
             catch (Exception ex)

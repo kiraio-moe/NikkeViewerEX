@@ -7,6 +7,8 @@ namespace NikkeViewerEX.Serialization
     [Serializable]
     public class NikkeSettings
     {
+        public bool IsFirstTime = true;
+        public bool HideUI;
         public int FPS = 60;
         public List<Nikke> NikkeList = new();
     }

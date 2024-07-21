@@ -11,6 +11,7 @@ using NikkeViewerEX.Utils;
 using Unity.Logging;
 using Unity.Logging.Sinks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Logger = Unity.Logging.Logger;
 
 namespace NikkeViewerEX.Core
@@ -21,26 +22,54 @@ namespace NikkeViewerEX.Core
     {
         [Header("Spine Settings")]
         [SerializeField]
-        private SerializableDictionary<string, NikkeViewerBase> m_NikkeVersions = new();
+        SerializableDictionary<string, NikkeViewerBase> m_NikkeVersions = new();
 
         [Header("UI")]
         [SerializeField]
-        private RectTransform m_NikkeListContent;
+        CanvasGroup m_MainControlUI;
 
         [SerializeField]
-        private RectTransform m_NikkeListItem;
+        RectTransform m_InitInfoUI;
+
+        [SerializeField]
+        RectTransform m_NikkeListContent;
+
+        [SerializeField]
+        RectTransform m_NikkeListItem;
+
+        public CanvasGroup MainControlUI
+        {
+            get => m_MainControlUI;
+        }
+        public RectTransform InitInfoUI
+        {
+            get => m_InitInfoUI;
+        }
 
         public delegate void OnSettingsAppliedHandler();
         public event OnSettingsAppliedHandler OnSettingsApplied;
 
-        private static readonly string logFileName = "log.txt";
-        private readonly SpineHelperBase spineHelper = new();
-        private SettingsManager settingsManager;
+        static readonly string logFileName = "log.txt";
+        readonly SpineHelperBase spineHelper = new();
 
-        private void Awake()
+        SettingsManager settingsManager;
+        InputManager inputManager;
+
+        void Awake()
         {
             SetupLoggerConfig();
+            inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = GetComponent<SettingsManager>();
+        }
+
+        void OnEnable()
+        {
+            inputManager.ToggleUI.performed += ToggleUI;
+        }
+
+        void OnDestroy()
+        {
+            inputManager.ToggleUI.performed -= ToggleUI;
         }
 
         public void AddNikkeUI() => AddNikke();
@@ -83,8 +112,6 @@ namespace NikkeViewerEX.Core
                         item.name = item.Viewer.name = string.IsNullOrEmpty(nikkeName)
                             ? item.Viewer.NikkeData.AssetName
                             : nikkeName;
-
-                        nikkeDataList.Add(item.Viewer.NikkeData);
                     }
                 }
                 else
@@ -105,6 +132,7 @@ namespace NikkeViewerEX.Core
                         );
                     }
                 }
+                nikkeDataList.Add(item.Viewer.NikkeData);
             }
 
             settingsManager.NikkeSettings.NikkeList = nikkeDataList;
@@ -112,7 +140,7 @@ namespace NikkeViewerEX.Core
             await settingsManager.SaveSettings();
         }
 
-        private async UniTask<string> GetAssetPath(string path) =>
+        async UniTask<string> GetAssetPath(string path) =>
             WebRequestHelper.IsHttp(path)
                 ? await WebRequestHelper.CacheAsset(
                     path,
@@ -123,7 +151,7 @@ namespace NikkeViewerEX.Core
                 )
                 : path;
 
-        private async UniTask<List<string>> GetAssetsPath(string paths) =>
+        async UniTask<List<string>> GetAssetsPath(string paths) =>
             (await UniTask.WhenAll(paths.Split(", ").Select(GetAssetPath))).ToList();
 
         public async UniTask<NikkeViewerBase> InstantiateViewer(string skelPath)
@@ -133,11 +161,11 @@ namespace NikkeViewerEX.Core
             {
                 "4.0" => Instantiate(m_NikkeVersions["4.0"]),
                 "4.1" => Instantiate(m_NikkeVersions["4.1"]),
-                _ => LogErrorAndReturnNull(skelVersion, skelPath)
+                _ => InvalidSkelVersion(skelVersion, skelPath)
             };
         }
 
-        private static NikkeViewerBase LogErrorAndReturnNull(string skelVersion, string skelPath)
+        private static NikkeViewerBase InvalidSkelVersion(string skelVersion, string skelPath)
         {
             Log.Error(
                 $"Unable to load Skeleton asset! Invalid Skeleton version: {skelVersion} in {skelPath}"
@@ -145,7 +173,7 @@ namespace NikkeViewerEX.Core
             return null;
         }
 
-        private async UniTask<List<string>> GetVoicesPath(List<string> sources)
+        async UniTask<List<string>> GetVoicesPath(List<string> sources)
         {
             List<string> voicesPath = new();
             foreach (string source in sources)
@@ -195,8 +223,7 @@ namespace NikkeViewerEX.Core
             return voicesPath;
         }
 
-        // private async UniTask<List<AudioClip>> CacheTouchVoices(List<string> sources) => (await UniTask.WhenAll(sources.Select(async path => WebRequestHelper.GetAudioClip(await GetCachedPath(path))))).ToList();
-        private async UniTask<List<AudioClip>> CacheTouchVoices(List<string> sources) =>
+        async UniTask<List<AudioClip>> CacheTouchVoices(List<string> sources) =>
             (
                 await UniTask.WhenAll(
                     sources.Select(async path =>
@@ -205,7 +232,7 @@ namespace NikkeViewerEX.Core
                 )
             ).ToList();
 
-        private async UniTask<string> GetCachedPath(string path) =>
+        async UniTask<string> GetCachedPath(string path) =>
             WebRequestHelper.IsHttp(path)
                 ? await WebRequestHelper.CacheAsset(
                     path,
@@ -216,8 +243,26 @@ namespace NikkeViewerEX.Core
                 )
                 : path;
 
+        void ToggleUI(InputAction.CallbackContext ctx)
+        {
+            settingsManager.NikkeSettings.HideUI = Convert.ToBoolean(m_MainControlUI.alpha);
+            ToggleUI(settingsManager.NikkeSettings.HideUI);
+        }
+
+        public void ToggleUI(bool state)
+        {
+            m_MainControlUI.alpha = state ? 0 : 1;
+            m_MainControlUI.interactable = !state;
+        }
+
+        public void HideInfoUI(bool state)
+        {
+            m_InitInfoUI.gameObject.SetActive(!state);
+            settingsManager.NikkeSettings.IsFirstTime = !state;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void SetupLoggerConfig()
+        static void SetupLoggerConfig()
         {
             Log.Logger = new Logger(
                 new LoggerConfig()
