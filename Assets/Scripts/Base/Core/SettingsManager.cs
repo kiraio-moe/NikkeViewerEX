@@ -62,15 +62,15 @@ namespace NikkeViewerEX.Core
                 SetFrameRate(NikkeSettings.FPS = m_FPS);
         }
 
-        void Awake()
+        async void Awake()
         {
             mainControl = GetComponent<MainControl>();
-        }
-
-        async void Start()
-        {
             await Setup();
         }
+
+        // async void OnEnable()
+        // {
+        // }
 
         async void OnDestroy()
         {

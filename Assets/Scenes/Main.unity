@@ -1721,6 +1721,11 @@ PrefabInstance:
       objectReference: {fileID: 330585545}
     - target: {fileID: 2707231106857082596, guid: 66514e6f6e683c046b82c3f902806af7,
         type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2707231106857082596, guid: 66514e6f6e683c046b82c3f902806af7,
+        type: 3}
       propertyPath: m_UIInputModule
       value: 
       objectReference: {fileID: 452794473}
