@@ -10,6 +10,10 @@ namespace NikkeViewerEX.Components
     public abstract class NikkeViewerBase : MonoBehaviour
     {
         public Nikke NikkeData = new();
+        public string[] Skins { get; set; }
+
+        public delegate void OnSkinChangedHandler(int index);
+        public event OnSkinChangedHandler OnSkinChanged;
 
         public MainControl MainControl { get; private set; }
         public SettingsManager SettingsManager { get; private set; }
@@ -43,6 +47,8 @@ namespace NikkeViewerEX.Components
         {
             InputManager.PointerHold.started -= DragNikke;
         }
+
+        public void InvokeChangeSkin(int index) => OnSkinChanged?.Invoke(index);
 
         public void AddMeshCollider()
         {

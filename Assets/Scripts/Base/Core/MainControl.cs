@@ -8,10 +8,12 @@ using NikkeViewerEX.Components;
 using NikkeViewerEX.Serialization;
 using NikkeViewerEX.UI;
 using NikkeViewerEX.Utils;
+using TMPro;
 using Unity.Logging;
 using Unity.Logging.Sinks;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using Logger = Unity.Logging.Logger;
 
 namespace NikkeViewerEX.Core
@@ -40,6 +42,10 @@ namespace NikkeViewerEX.Core
         public CanvasGroup MainControlUI
         {
             get => m_MainControlUI;
+        }
+        public RectTransform NikkeListContent
+        {
+            get => m_NikkeListContent;
         }
         public RectTransform InitInfoUI
         {
@@ -138,6 +144,15 @@ namespace NikkeViewerEX.Core
 
             settingsManager.NikkeSettings.NikkeList = nikkeDataList;
             OnSettingsApplied?.Invoke();
+
+            foreach (NikkeListItem item in listItems)
+            {
+                await UniTask.WaitUntil(() => item.Viewer.Skins.Length > 0);
+                item.SkinDropdown.options = item
+                    .Viewer.Skins.Select(skin => new TMP_Dropdown.OptionData(skin))
+                    .ToList();
+            }
+
             await settingsManager.SaveSettings();
         }
 

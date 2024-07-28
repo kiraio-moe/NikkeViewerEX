@@ -6,6 +6,7 @@ using NikkeViewerEX.Components;
 using NikkeViewerEX.Serialization;
 using NikkeViewerEX.UI;
 using NikkeViewerEX.Utils;
+using TMPro;
 using Unity.Logging;
 using UnityEngine;
 
@@ -122,6 +123,28 @@ namespace NikkeViewerEX.Core
             }
 
             OnSettingsLoaded?.Invoke();
+
+            foreach (
+                NikkeListItem item in mainControl.NikkeListContent.GetComponentsInChildren<NikkeListItem>()
+            )
+            {
+                // Wait until Skins list is gathered before assigning the to the dropdown list
+                await UniTask.WaitUntil(() => item.Viewer.Skins.Length > 0);
+                item.SkinDropdown.options = item
+                    .Viewer.Skins.Select(skin => new TMP_Dropdown.OptionData(skin))
+                    .ToList();
+
+                // Load saved skin
+                for (int i = 0; i < item.Viewer.Skins.Length; i++)
+                {
+                    if (item.SkinDropdown.options[i].text == item.Viewer.NikkeData.Skin)
+                    {
+                        item.Viewer.InvokeChangeSkin(i);
+                        item.SkinDropdown.value = i;
+                        break;
+                    }
+                }
+            }
         }
 
         public async UniTask<string> SaveSettings()

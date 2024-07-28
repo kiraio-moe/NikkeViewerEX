@@ -1,5 +1,3 @@
-using Cysharp.Threading.Tasks;
-using Gilzoide.SerializableCollections;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
@@ -14,71 +12,18 @@ namespace NikkeViewerEX.UI
     public class NikkeListItem : MonoBehaviour
     {
         [Header("UI")]
-        [SerializeField]
-        TMP_InputField m_NikkeNameText;
-
-        [SerializeField]
-        TMP_InputField m_SkelPathText;
-
-        [SerializeField]
-        TMP_InputField m_AtlasPathText;
-
-        [SerializeField]
-        TMP_InputField m_TexturesPathText;
-
-        [SerializeField]
-        TMP_InputField m_VoicesSourceText;
+        public TMP_InputField NikkeNameText;
+        public TMP_InputField SkelPathText;
+        public TMP_InputField AtlasPathText;
+        public TMP_InputField TexturesPathText;
+        public TMP_InputField VoicesSourceText;
+        public TMP_Dropdown SkinDropdown;
 
         [Space]
-        [SerializeField]
-        CanvasGroup m_ItemCanvasGroup;
+        public CanvasGroup ItemCanvasGroup;
+        public Toggle LockButtonToggle;
 
-        [SerializeField]
-        Toggle m_LockButtonToggle;
-
-        public TMP_InputField NikkeNameText
-        {
-            get => m_NikkeNameText;
-            set => m_NikkeNameText = value;
-        }
-        public TMP_InputField SkelPathText
-        {
-            get => m_SkelPathText;
-            set => m_SkelPathText = value;
-        }
-        public TMP_InputField AtlasPathText
-        {
-            get => m_AtlasPathText;
-            set => m_AtlasPathText = value;
-        }
-        public TMP_InputField TexturesPathText
-        {
-            get => m_TexturesPathText;
-            set => m_TexturesPathText = value;
-        }
-        public TMP_InputField VoicesSourceText
-        {
-            get => m_VoicesSourceText;
-            set => m_VoicesSourceText = value;
-        }
-        public CanvasGroup ItemCanvasGroup
-        {
-            get => m_ItemCanvasGroup;
-            set => m_ItemCanvasGroup = value;
-        }
-        public Toggle LockButtonToggle
-        {
-            get => m_LockButtonToggle;
-            set => m_LockButtonToggle = value;
-        }
-
-        NikkeViewerBase viewer;
-        public NikkeViewerBase Viewer
-        {
-            get => viewer;
-            set => viewer = value;
-        }
-
+        public NikkeViewerBase Viewer { get; set; }
         SettingsManager settingsManager;
 
         void Awake()
@@ -88,11 +33,22 @@ namespace NikkeViewerEX.UI
                 false,
                 new FileBrowser.Filter("Spine", ".skel", ".atlas", ".png")
             );
+
+            SkinDropdown.onValueChanged.AddListener(_ =>
+                Viewer.InvokeChangeSkin(SkinDropdown.value)
+            );
+        }
+
+        void OnDestroy()
+        {
+            SkinDropdown.onValueChanged.RemoveListener(_ =>
+                Viewer.InvokeChangeSkin(SkinDropdown.value)
+            );
         }
 
         public void LockNikke()
         {
-            m_ItemCanvasGroup.interactable = !m_ItemCanvasGroup.interactable;
+            ItemCanvasGroup.interactable = !ItemCanvasGroup.interactable;
             Viewer.NikkeData.Lock = !Viewer.NikkeData.Lock;
         }
 

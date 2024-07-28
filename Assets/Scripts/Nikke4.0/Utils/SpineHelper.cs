@@ -81,9 +81,7 @@ namespace NikkeViewerEX.Utils
             float spineScale = 1f,
             float spineScaleMultiplier = 0.0115f,
             bool loop = false,
-            string defaultAnimation = "idle",
-            string defaultSkin = "default",
-            string backgroundSkin = "bg"
+            string defaultAnimation = "idle"
         )
         {
             try
@@ -124,19 +122,17 @@ namespace NikkeViewerEX.Utils
                     animationStateData
                 );
 
-                SkeletonAnimation spineAnimation = SkeletonAnimation.AddToGameObject(
+                SkeletonAnimation skeletonAnimation = SkeletonAnimation.AddToGameObject(
                     targetGameObject,
                     skeletonDataAsset
                 );
-                Skin skin = new(defaultSkin);
-                Skin bgSkin = skeletonData.FindSkin(backgroundSkin);
-                if (bgSkin != null)
-                    skin.AddSkin(bgSkin);
-                spineAnimation.Initialize(false);
-                spineAnimation.Skeleton.SetSlotsToSetupPose();
-                spineAnimation.AnimationState.SetAnimation(0, defaultAnimation, loop);
+                skeletonAnimation.Initialize(false);
+                skeletonAnimation.Skeleton.SetSlotsToSetupPose();
+                skeletonAnimation.AnimationState.SetAnimation(0, defaultAnimation, loop);
+                skeletonAnimation.Update(0);
+                skeletonAnimation.LateUpdate();
 
-                return spineAnimation;
+                return skeletonAnimation;
             }
             catch (Exception ex)
             {

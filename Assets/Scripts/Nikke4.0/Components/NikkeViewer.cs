@@ -1,3 +1,4 @@
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
@@ -25,6 +26,7 @@ namespace NikkeViewerEX.Components
             MainControl.OnSettingsApplied += SpawnNikke;
             SettingsManager.OnSettingsLoaded += SpawnNikke;
             InputManager.PointerClick.performed += Interact;
+            OnSkinChanged += ChangeSkin;
         }
 
         public override void OnDestroy()
@@ -33,6 +35,18 @@ namespace NikkeViewerEX.Components
             MainControl.OnSettingsApplied -= SpawnNikke;
             SettingsManager.OnSettingsLoaded -= SpawnNikke;
             InputManager.PointerClick.performed -= Interact;
+            OnSkinChanged -= ChangeSkin;
+        }
+
+        void ChangeSkin(int index)
+        {
+            skeletonAnimation.Skeleton.SetSkin(Skins[index]);
+            skeletonAnimation.Skeleton.SetSlotsToSetupPose();
+            skeletonAnimation.Update(0);
+            //! Some background skins have weird mesh colliders, so you can interact with them outside of the visible character texture. It's best to disable them.
+            // AddMeshCollider();
+            // skeletonAnimation.LateUpdate();
+            NikkeData.Skin = Skins[index];
         }
 
         async void SpawnNikke()
@@ -40,6 +54,7 @@ namespace NikkeViewerEX.Components
             if (skeletonAnimation == null)
             {
                 skeletonAnimation = await CreateNikke();
+                Skins = skeletonAnimation.Skeleton.Data.Skins.Select(skin => skin.Name).ToArray();
                 AddMeshCollider();
             }
         }

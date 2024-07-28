@@ -23,6 +23,7 @@ namespace NikkeViewerEX.Serialization
         public List<string> TexturesPath = new();
         public List<string> VoicesSource = new();
         public List<string> VoicesPath = new();
+        public string Skin = "default";
         public Vector2 Position;
         public bool Lock;
     }
