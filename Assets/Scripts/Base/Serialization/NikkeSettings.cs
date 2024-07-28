@@ -24,5 +24,6 @@ namespace NikkeViewerEX.Serialization
         public List<string> VoicesSource = new();
         public List<string> VoicesPath = new();
         public Vector2 Position;
+        public bool Lock;
     }
 }

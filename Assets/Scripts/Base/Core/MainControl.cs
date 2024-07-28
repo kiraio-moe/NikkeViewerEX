@@ -58,6 +58,7 @@ namespace NikkeViewerEX.Core
         void Awake()
         {
             SetupLoggerConfig();
+
             inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = GetComponent<SettingsManager>();
         }

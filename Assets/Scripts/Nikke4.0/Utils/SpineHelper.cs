@@ -81,7 +81,9 @@ namespace NikkeViewerEX.Utils
             float spineScale = 1f,
             float spineScaleMultiplier = 0.0115f,
             bool loop = false,
-            string defaultAnimation = "idle"
+            string defaultAnimation = "idle",
+            string defaultSkin = "default",
+            string backgroundSkin = "bg"
         )
         {
             try
@@ -126,6 +128,10 @@ namespace NikkeViewerEX.Utils
                     targetGameObject,
                     skeletonDataAsset
                 );
+                Skin skin = new(defaultSkin);
+                Skin bgSkin = skeletonData.FindSkin(backgroundSkin);
+                if (bgSkin != null)
+                    skin.AddSkin(bgSkin);
                 spineAnimation.Initialize(false);
                 spineAnimation.Skeleton.SetSlotsToSetupPose();
                 spineAnimation.AnimationState.SetAnimation(0, defaultAnimation, loop);

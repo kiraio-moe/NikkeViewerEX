@@ -16,8 +16,7 @@ namespace NikkeViewerEX.Core
     public class SettingsManager : MonoBehaviour
     {
         [Header("Settings")]
-        [SerializeField]
-        int m_FPS = 60;
+        public int FPS = 60;
 
         [SerializeField]
         string m_SettingsFile = "settings.json";
@@ -25,30 +24,10 @@ namespace NikkeViewerEX.Core
         [SerializeField]
         string m_CachedDataDirectoryName = "cache";
 
-        [SerializeField]
-        string[] m_SupportedAudioFiles = { ".mp3", ".ogg", ".wav" };
+        public string[] SupportedAudioFiles = { ".mp3", ".ogg", ".wav" };
 
-        public int FPS
-        {
-            get => m_FPS;
-            set => m_FPS = value;
-        }
-        NikkeSettings nikkeSettings = new();
-        public NikkeSettings NikkeSettings
-        {
-            get => nikkeSettings;
-            set => nikkeSettings = value;
-        }
-        string cachedDataDirectory;
-        public string CachedDataDirectory
-        {
-            get => cachedDataDirectory;
-        }
-        public string[] SupportedAudioFiles
-        {
-            get => m_SupportedAudioFiles;
-            set => m_SupportedAudioFiles = value;
-        }
+        public NikkeSettings NikkeSettings { get; set; } = new();
+        public string CachedDataDirectory { get; private set; }
 
         public delegate void OnSettingsLoadedHandler();
         public event OnSettingsLoadedHandler OnSettingsLoaded;
@@ -59,7 +38,7 @@ namespace NikkeViewerEX.Core
         void OnValidate()
         {
             if (NikkeSettings != null)
-                SetFrameRate(NikkeSettings.FPS = m_FPS);
+                SetFrameRate(NikkeSettings.FPS = FPS);
         }
 
         async void Awake()
@@ -67,10 +46,6 @@ namespace NikkeViewerEX.Core
             mainControl = GetComponent<MainControl>();
             await Setup();
         }
-
-        // async void OnEnable()
-        // {
-        // }
 
         async void OnDestroy()
         {
@@ -80,7 +55,7 @@ namespace NikkeViewerEX.Core
         async UniTask Setup()
         {
             settingsFilePath = Path.Combine(StorageHelper.GetApplicationPath(), m_SettingsFile);
-            cachedDataDirectory = Path.Combine(
+            CachedDataDirectory = Path.Combine(
                 StorageHelper.GetApplicationPath(),
                 Directory.CreateDirectory(m_CachedDataDirectoryName).Name
             );
@@ -126,7 +101,7 @@ namespace NikkeViewerEX.Core
                                     ? await WebRequestHelper.CacheAsset(
                                         path,
                                         Path.Combine(
-                                            cachedDataDirectory,
+                                            CachedDataDirectory,
                                             Path.GetFileName(new Uri(path).AbsolutePath)
                                         )
                                     )
@@ -135,6 +110,10 @@ namespace NikkeViewerEX.Core
                         )
                     )
                 ).ToList();
+
+                // Update lock button toggle state
+                item.ItemCanvasGroup.interactable = !nikkeData.Lock;
+                item.LockButtonToggle.isOn = nikkeData.Lock;
 
                 // Change GameObject name
                 item.name = viewer.name = string.IsNullOrEmpty(nikkeData.NikkeName)
@@ -149,7 +128,7 @@ namespace NikkeViewerEX.Core
         {
             try
             {
-                string settings = JsonUtility.ToJson(nikkeSettings);
+                string settings = JsonUtility.ToJson(NikkeSettings);
                 await UniTask.RunOnThreadPool(() =>
                 {
                     using FileStream fs =

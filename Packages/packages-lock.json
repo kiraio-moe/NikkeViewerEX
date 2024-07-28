@@ -21,7 +21,7 @@
       "dependencies": {}
     },
     "com.unity.burst": {
-      "version": "1.8.15",
+      "version": "1.8.16",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -307,6 +307,15 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
+    },
+    "com.unity.modules.unityanalytics": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0"
+      }
     },
     "com.unity.modules.unitywebrequest": {
       "version": "1.0.0",

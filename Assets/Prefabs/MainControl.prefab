@@ -53,6 +53,8 @@ MonoBehaviour:
     - Key: 4.1
       Value: {fileID: 4875687364164016299, guid: 56bf43eb4d1905347894f1fb15aade8f,
         type: 3}
+  m_MainControlUI: {fileID: 0}
+  m_InitInfoUI: {fileID: 0}
   m_NikkeListContent: {fileID: 0}
   m_NikkeListItem: {fileID: 82546977490174494, guid: 53d7f18d29bf8d140973e7cc4a9e6407,
     type: 3}
@@ -68,5 +70,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4c241eb59838cf4d96ce3618bfe5370, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FPS: 60
+  FPS: 60
   m_SettingsFile: settings.json
+  m_CachedDataDirectoryName: cache
+  SupportedAudioFiles:
+  - .mp3
+  - .ogg
+  - .wav

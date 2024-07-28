@@ -1,10 +1,12 @@
 using Cysharp.Threading.Tasks;
+using Gilzoide.SerializableCollections;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NikkeViewerEX.UI
 {
@@ -26,6 +28,13 @@ namespace NikkeViewerEX.UI
 
         [SerializeField]
         TMP_InputField m_VoicesSourceText;
+
+        [Space]
+        [SerializeField]
+        CanvasGroup m_ItemCanvasGroup;
+
+        [SerializeField]
+        Toggle m_LockButtonToggle;
 
         public TMP_InputField NikkeNameText
         {
@@ -52,6 +61,16 @@ namespace NikkeViewerEX.UI
             get => m_VoicesSourceText;
             set => m_VoicesSourceText = value;
         }
+        public CanvasGroup ItemCanvasGroup
+        {
+            get => m_ItemCanvasGroup;
+            set => m_ItemCanvasGroup = value;
+        }
+        public Toggle LockButtonToggle
+        {
+            get => m_LockButtonToggle;
+            set => m_LockButtonToggle = value;
+        }
 
         NikkeViewerBase viewer;
         public NikkeViewerBase Viewer
@@ -69,6 +88,12 @@ namespace NikkeViewerEX.UI
                 false,
                 new FileBrowser.Filter("Spine", ".skel", ".atlas", ".png")
             );
+        }
+
+        public void LockNikke()
+        {
+            m_ItemCanvasGroup.interactable = !m_ItemCanvasGroup.interactable;
+            Viewer.NikkeData.Lock = !Viewer.NikkeData.Lock;
         }
 
         /// <summary>
@@ -89,7 +114,7 @@ namespace NikkeViewerEX.UI
         /// </summary>
         public void RefreshNikkeName()
         {
-            if (Viewer != null)
+            if (Viewer != null && !string.IsNullOrEmpty(NikkeNameText.text))
                 Viewer.NikkeData.NikkeName = Viewer.name = NikkeNameText.text;
         }
 

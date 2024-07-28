@@ -18,11 +18,10 @@ namespace NikkeViewerEX.Components
         string m_TouchAnimation = "action";
 
         SkeletonAnimation skeletonAnimation;
-        bool allowInteraction = true;
 
-        public override void Awake()
+        public override void OnEnable()
         {
-            base.Awake();
+            base.OnEnable();
             MainControl.OnSettingsApplied += SpawnNikke;
             SettingsManager.OnSettingsLoaded += SpawnNikke;
             InputManager.PointerClick.performed += Interact;
@@ -60,40 +59,52 @@ namespace NikkeViewerEX.Components
 
         void Interact(InputAction.CallbackContext ctx)
         {
-            if (ctx.performed && allowInteraction)
+            if (ctx.performed && AllowInteraction)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    if (hit.collider.TryGetComponent(out NikkeViewer viewer) && !IsDragged)
+                    if (hit.collider.TryGetComponent(out NikkeViewer viewer))
                     {
                         if (viewer == this)
                         {
-                            allowInteraction = false;
+                            AllowInteraction = false;
+                            Spine.Animation touchAnimation = skeletonAnimation
+                                .skeletonDataAsset.GetAnimationStateData()
+                                .SkeletonData.FindAnimation(m_TouchAnimation);
 
-                            if (TouchVoices.Count > 0)
+                            if (touchAnimation != null)
                             {
-                                NikkeAudioSource.clip = TouchVoices[TouchVoiceIndex];
-                                NikkeAudioSource.Play();
-                                TouchVoiceIndex = (TouchVoiceIndex + 1) % TouchVoices.Count;
+                                if (TouchVoices.Count > 0)
+                                {
+                                    NikkeAudioSource.clip = TouchVoices[TouchVoiceIndex];
+                                    NikkeAudioSource.Play();
+                                    TouchVoiceIndex = (TouchVoiceIndex + 1) % TouchVoices.Count;
+                                }
+
+                                skeletonAnimation.AnimationState.SetAnimation(
+                                    0,
+                                    m_TouchAnimation,
+                                    false
+                                );
+                                skeletonAnimation.AnimationState.AddAnimation(
+                                    0,
+                                    m_DefaultAnimation,
+                                    true,
+                                    0
+                                );
+                                skeletonAnimation.AnimationState.GetCurrent(0).Complete +=
+                                    async _ =>
+                                    {
+                                        if (NikkeAudioSource != null)
+                                        {
+                                            await UniTask.WaitUntil(
+                                                () => !NikkeAudioSource.isPlaying
+                                            );
+                                            AllowInteraction = true;
+                                        }
+                                    };
                             }
-
-                            skeletonAnimation.AnimationState.SetAnimation(
-                                0,
-                                m_TouchAnimation,
-                                false
-                            );
-                            skeletonAnimation.AnimationState.AddAnimation(
-                                0,
-                                m_DefaultAnimation,
-                                true,
-                                0
-                            );
-                            skeletonAnimation.AnimationState.GetCurrent(0).Complete += async _ =>
-                            {
-                                await UniTask.WaitUntil(() => !NikkeAudioSource.isPlaying);
-                                allowInteraction = true;
-                            };
                         }
                     }
                 }

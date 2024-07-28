@@ -9,82 +9,39 @@ namespace NikkeViewerEX.Components
 {
     public abstract class NikkeViewerBase : MonoBehaviour
     {
-        [SerializeField]
-        Nikke m_NikkeData = new();
-        public Nikke NikkeData
-        {
-            get => m_NikkeData;
-            set => m_NikkeData = value;
-        }
+        public Nikke NikkeData = new();
 
-        bool isLocked;
-        public bool IsLocked
-        {
-            get => isLocked;
-            set => isLocked = value;
-        }
-
-        MainControl mainControl;
-        public MainControl MainControl
-        {
-            get => mainControl;
-        }
-        SettingsManager settingsManager;
-        public SettingsManager SettingsManager
-        {
-            get => settingsManager;
-        }
-        InputManager inputManager;
-        public InputManager InputManager
-        {
-            get => inputManager;
-        }
+        public MainControl MainControl { get; private set; }
+        public SettingsManager SettingsManager { get; private set; }
+        public InputManager InputManager { get; private set; }
 
         readonly float dragSmoothTime = .1f;
         Vector2 dragObjectVelocity;
         Vector3 dragObjectOffset;
-        bool isDragged;
-        public bool IsDragged
+        public bool IsDragged { get; private set; }
+
+        public AudioSource NikkeAudioSource { get; private set; }
+        public List<AudioClip> TouchVoices { get; set; } = new();
+        public int TouchVoiceIndex = 0;
+
+        public bool AllowInteraction { get; set; } = true;
+
+        void Awake()
         {
-            get => isDragged;
+            MainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
+            InputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
+            SettingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
+            NikkeAudioSource = GetComponent<AudioSource>();
         }
 
-        AudioSource nikkeAudioSource;
-        public AudioSource NikkeAudioSource
+        public virtual void OnEnable()
         {
-            get => nikkeAudioSource;
-        }
-        List<AudioClip> touchVoices = new();
-        public List<AudioClip> TouchVoices
-        {
-            get => touchVoices;
-            set => touchVoices = value;
-        }
-        int touchVoiceIndex = 0;
-        public int TouchVoiceIndex
-        {
-            get => touchVoiceIndex;
-            set => touchVoiceIndex = value;
-        }
-
-        public virtual void Awake()
-        {
-            mainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
-            inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
-            settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
-            nikkeAudioSource = GetComponent<AudioSource>();
-        }
-
-        public virtual void Start()
-        {
-            inputManager.PointerHold.started += DragNikke;
-            // inputManager.PointerHold.canceled += PostDragNikke;
+            InputManager.PointerHold.started += DragNikke;
         }
 
         public virtual void OnDestroy()
         {
-            inputManager.PointerHold.started -= DragNikke;
-            // inputManager.PointerHold.canceled -= PostDragNikke;
+            InputManager.PointerHold.started -= DragNikke;
         }
 
         public void AddMeshCollider()
@@ -92,30 +49,29 @@ namespace NikkeViewerEX.Components
             MeshCollider meshCollider =
                 gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
             if (TryGetComponent(out MeshFilter meshFilter))
-            {
                 meshCollider.sharedMesh = meshFilter.sharedMesh;
-                // meshCollider.convex = true;
-                // meshCollider.isTrigger = true;
-            }
         }
 
-        void DragNikke(InputAction.CallbackContext ctx)
+        async void DragNikke(InputAction.CallbackContext ctx)
         {
-            if (ctx.started && !IsLocked)
+            if (ctx.started && !NikkeData.Lock)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
                     if (hit.collider.TryGetComponent(out NikkeViewerBase _))
                     {
-                        DragUpdate(hit.collider.gameObject).Forget();
+                        await DragUpdate(hit.collider.gameObject);
                     }
                 }
             }
         }
 
-        async UniTaskVoid DragUpdate(GameObject clickedObject)
+        async UniTask DragUpdate(GameObject clickedObject)
         {
+            if (NikkeData.Lock)
+                return;
+
             float initialDistance = Vector3.Distance(
                 clickedObject.transform.position,
                 Camera.main.transform.position
@@ -125,7 +81,7 @@ namespace NikkeViewerEX.Components
             Vector3 initialPoint = initialRay.GetPoint(initialDistance);
             dragObjectOffset = clickedObject.transform.position - initialPoint;
 
-            while (inputManager.PointerHold.ReadValue<float>() != 0)
+            while (InputManager.PointerHold.ReadValue<float>() != 0)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                 Vector3 targetPoint = ray.GetPoint(initialDistance) + dragObjectOffset;
@@ -135,21 +91,21 @@ namespace NikkeViewerEX.Components
                     ref dragObjectVelocity,
                     dragSmoothTime
                 );
-                isDragged = true;
+                IsDragged = true;
                 await UniTask.Yield();
             }
 
-            PostDragNikke();
+            await PostDragNikke();
         }
 
-        void PostDragNikke()
+        async UniTask PostDragNikke()
         {
             if (this != null)
             {
                 NikkeData.Position = gameObject.transform.position;
                 dragObjectVelocity = Vector2.zero;
-                isDragged = false;
-                settingsManager.SaveSettings().Forget();
+                IsDragged = false;
+                await SettingsManager.SaveSettings();
             }
         }
     }
