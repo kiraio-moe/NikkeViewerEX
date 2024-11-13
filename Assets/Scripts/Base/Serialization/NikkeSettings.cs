@@ -29,6 +29,7 @@ namespace NikkeViewerEX.Serialization
         public List<string> VoicesSource = new();
         public List<string> VoicesPath = new();
         public string Skin = "default";
+        public Vector3 Scale = Vector3.one;
         public Vector2 Position;
         public bool Lock;
     }

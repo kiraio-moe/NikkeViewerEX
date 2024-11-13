@@ -67,5 +67,21 @@ namespace NikkeViewerEX.Utils
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             return (angle + 360) % 360;
         }
+
+        /// <summary>
+        /// Clamp Vector3.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public Vector3 ClampVector3(Vector3 value, float min, float max)
+        {
+            return new Vector3(
+                Mathf.Clamp(value.x, min, max),
+                Mathf.Clamp(value.y, min, max),
+                Mathf.Clamp(value.z, min, max)
+            );
+        }
     }
 }

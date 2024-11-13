@@ -244,6 +244,7 @@ namespace NikkeViewerEX.Core
             item.Viewer = viewer;
             viewer.NikkeData = nikkeData;
             viewer.gameObject.transform.position = nikkeData.Position;
+            viewer.gameObject.transform.localScale = nikkeData.Scale;
 
             viewer.TouchVoices = (
                 await UniTask.WhenAll(

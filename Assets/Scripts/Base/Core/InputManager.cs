@@ -11,6 +11,8 @@ namespace NikkeViewerEX.Core
     {
         public InputAction PointerClick { get; private set; }
         public InputAction PointerHold { get; private set; }
+        public InputAction PointerPosition { get; private set; }
+
         public InputAction ToggleUI { get; private set; }
 
         [SerializeField]

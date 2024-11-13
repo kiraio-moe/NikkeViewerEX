@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Serialization;
+using NikkeViewerEX.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,10 +26,15 @@ namespace NikkeViewerEX.Components
         public MainControl MainControl { get; private set; }
         public SettingsManager SettingsManager { get; private set; }
         public InputManager InputManager { get; private set; }
+        readonly SpineHelperBase spineHelper = new SpineHelperBase();
 
         readonly float dragSmoothTime = .1f;
         Vector2 dragObjectVelocity;
         Vector3 dragObjectOffset;
+
+        readonly float _scrollSensitivity = 0.05f;
+        readonly float _nikkeMinScale = 0.2f;
+        readonly float _nikkeMaxScale = 5f;
 
         /// <summary>
         /// Does Nikke currently being dragged?
@@ -77,6 +83,12 @@ namespace NikkeViewerEX.Components
             InputManager.PointerHold.started -= DragNikke;
         }
 
+        private void Update()
+        {
+            // if (!NikkeData.Lock)
+            ChangeNikkeScale();
+        }
+
         /// <summary>
         /// Invoke OnSkinChanged event.
         /// </summary>
@@ -94,7 +106,7 @@ namespace NikkeViewerEX.Components
                 meshCollider.sharedMesh = meshFilter.sharedMesh;
         }
 
-#region Drag & Drop Nikke
+        #region Drag & Drop Nikke
         /// <summary>
         /// Perform Raycast from pointer to start dragging.
         /// </summary>
@@ -165,6 +177,42 @@ namespace NikkeViewerEX.Components
                 await SettingsManager.SaveSettings();
             }
         }
+        #endregion
+
+        private void ChangeNikkeScale()
+        {
+            if (!NikkeData.Lock)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.collider.TryGetComponent(out NikkeViewerBase viewer))
+                    {
+                        float scrollDelta = Mouse.current.scroll.ReadValue().y;
+                        if (scrollDelta != 0 && !viewer.NikkeData.Lock)
+                        {
+                            Vector3 newScale = spineHelper.ClampVector3(
+                                hit.transform.localScale
+                                    + _scrollSensitivity * scrollDelta * Vector3.one,
+                                _nikkeMinScale,
+                                _nikkeMaxScale
+                            );
+                            hit.transform.localScale = Vector3.Lerp(
+                                hit.transform.localScale,
+                                newScale,
+                                0.5f
+                            );
+                            NikkeData.Scale = newScale;
+                            SettingsManager.SaveSettings().Forget();
+                        }
+                    }
+                }
+            }
+        }
+
+        public void ResetNikkeScale()
+        {
+            transform.localScale = Vector3.one;
+        }
     }
-#endregion
 }
