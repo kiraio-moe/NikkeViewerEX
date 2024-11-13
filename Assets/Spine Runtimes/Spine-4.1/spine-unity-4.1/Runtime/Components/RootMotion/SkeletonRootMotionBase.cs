@@ -192,9 +192,9 @@ namespace Spine.Unity {
 						float deltaTime = Time.fixedDeltaTime;
 						float deltaTimeSquared = (deltaTime * deltaTime);
 
-						rigidBody2D.velocity += rigidBody2D.gravityScale * Physics2D.gravity * deltaTime;
+						rigidBody2D.linearVelocity += rigidBody2D.gravityScale * Physics2D.gravity * deltaTime;
 						gravityAndVelocityMovement = 0.5f * rigidBody2D.gravityScale * Physics2D.gravity * deltaTimeSquared +
-							rigidBody2D.velocity * deltaTime;
+							rigidBody2D.linearVelocity * deltaTime;
 					}
 
 					Vector2 rigidbodyDisplacement2D = new Vector2(rigidbodyDisplacement.x, rigidbodyDisplacement.y);

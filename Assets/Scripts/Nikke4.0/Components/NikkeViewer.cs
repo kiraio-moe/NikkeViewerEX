@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
@@ -49,13 +50,22 @@ namespace NikkeViewerEX.Components
             NikkeData.Skin = Skins[index];
         }
 
-        async void SpawnNikke()
+        private async void SpawnNikke()
         {
-            if (skeletonAnimation == null)
+            try
             {
-                skeletonAnimation = await CreateNikke();
-                Skins = skeletonAnimation.Skeleton.Data.Skins.Select(skin => skin.Name).ToArray();
-                AddMeshCollider();
+                if (skeletonAnimation == null)
+                {
+                    skeletonAnimation = await CreateNikke();
+                    Skins = skeletonAnimation
+                        .Skeleton.Data.Skins?.Select(skin => skin.Name)
+                        .ToArray();
+                    AddMeshCollider();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error creating Nikke Viewer! {ex}");
             }
         }
 
@@ -114,7 +124,9 @@ namespace NikkeViewerEX.Components
                                         if (NikkeAudioSource != null)
                                         {
                                             await UniTask.WaitUntil(
-                                                () => !NikkeAudioSource.isPlaying
+                                                () =>
+                                                    NikkeAudioSource != null
+                                                    && !NikkeAudioSource.isPlaying
                                             );
                                             AllowInteraction = true;
                                         }

@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
@@ -23,33 +26,38 @@ namespace NikkeViewerEX.UI
         public CanvasGroup ItemCanvasGroup;
         public Toggle LockButtonToggle;
 
+        /// <summary>
+        /// The Nikke Viewer component associated with this item.
+        /// </summary>
+        /// <value></value>
         public NikkeViewerBase Viewer { get; set; }
         SettingsManager settingsManager;
 
-        void Awake()
+        private void Awake()
         {
             settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
-            FileBrowser.SetFilters(
-                false,
-                new FileBrowser.Filter("Spine", ".skel", ".atlas", ".png")
-            );
-
             SkinDropdown.onValueChanged.AddListener(_ =>
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
+            LockButtonToggle.onValueChanged.AddListener(ToggleLockNikke);
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             SkinDropdown.onValueChanged.RemoveListener(_ =>
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
+            LockButtonToggle.onValueChanged.RemoveListener(ToggleLockNikke);
         }
 
-        public void LockNikke()
+        /// <summary>
+        /// Lock Nikke position and disable interaction of their associated item UI.
+        /// </summary>
+        /// <param name="lockNikke"></param>
+        private void ToggleLockNikke(bool lockNikke)
         {
-            ItemCanvasGroup.interactable = !ItemCanvasGroup.interactable;
-            Viewer.NikkeData.Lock = !Viewer.NikkeData.Lock;
+            ItemCanvasGroup.interactable = !lockNikke;
+            Viewer.NikkeData.Lock = lockNikke;
         }
 
         /// <summary>
@@ -74,30 +82,37 @@ namespace NikkeViewerEX.UI
                 Viewer.NikkeData.NikkeName = Viewer.name = NikkeNameText.text;
         }
 
-        public void OpenFileDialog(TMP_InputField inputField)
+        public async void OpenNikkeAssetsDialog(TMP_InputField inputField)
         {
-            FileBrowser.ShowLoadDialog(
-                (paths) => inputField.text = string.Join(", ", paths),
-                () => { },
-                FileBrowser.PickMode.Files,
-                true,
-                StorageHelper.GetApplicationPath(),
-                null,
-                "Load Nikke Assets"
+            FileBrowser.SetFilters(
+                false,
+                new FileBrowser.Filter("Spine", ".skel", ".atlas", ".png")
             );
+            string[] paths = await StorageHelper.OpenFileDialog(
+                inputField,
+                "Load Nikke Assets",
+                initialPath: settingsManager.NikkeSettings.LastOpenedDirectory
+            );
+            if (paths.Length > 0)
+            {
+                settingsManager.NikkeSettings.LastOpenedDirectory = Path.GetDirectoryName(paths[0]);
+                await settingsManager.SaveSettings();
+            }
         }
 
-        public void OpenDirectoryDialog(TMP_InputField inputField)
+        public async void OpenNikkeAssetDirectoriesDialog(TMP_InputField inputField)
         {
-            FileBrowser.ShowLoadDialog(
-                (paths) => inputField.text = string.Join(", ", paths),
-                () => { },
-                FileBrowser.PickMode.Folders,
+            string[] paths = await StorageHelper.OpenDirectoryDialog(
+                inputField,
+                "Load Nikke Asset Directories",
                 true,
-                StorageHelper.GetApplicationPath(),
-                null,
-                "Load Nikke Directory Asset"
+                initialPath: settingsManager.NikkeSettings.LastOpenedDirectory
             );
+            if (paths.Length > 0)
+            {
+                settingsManager.NikkeSettings.LastOpenedDirectory = Path.GetDirectoryName(paths[0]);
+                await settingsManager.SaveSettings();
+            }
         }
     }
 }

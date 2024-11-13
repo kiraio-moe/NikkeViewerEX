@@ -7,8 +7,15 @@ using UnityEngine.InputSystem;
 
 namespace NikkeViewerEX.Components
 {
+    /// <summary>
+    /// The base class of Nikke Viewer.
+    /// </summary>
     public abstract class NikkeViewerBase : MonoBehaviour
     {
+        /// <summary>
+        /// The data of Nikke.
+        /// </summary>
+        /// <returns></returns>
         public Nikke NikkeData = new();
         public string[] Skins { get; set; }
 
@@ -22,15 +29,37 @@ namespace NikkeViewerEX.Components
         readonly float dragSmoothTime = .1f;
         Vector2 dragObjectVelocity;
         Vector3 dragObjectOffset;
+
+        /// <summary>
+        /// Does Nikke currently being dragged?
+        /// </summary>
+        /// <value></value>
         public bool IsDragged { get; private set; }
 
+        /// <summary>
+        /// The AudioSource component of the Nikke.
+        /// </summary>
+        /// <value></value>
         public AudioSource NikkeAudioSource { get; private set; }
+
+        /// <summary>
+        /// List of touch voices AudioClip.
+        /// </summary>
+        /// <returns></returns>
         public List<AudioClip> TouchVoices { get; set; } = new();
+
+        /// <summary>
+        /// Current touch voice index that has been/being played from TouchVoices list.
+        /// </summary>
         public int TouchVoiceIndex = 0;
 
+        /// <summary>
+        /// Allow interacting with the Nikke?
+        /// </summary>
+        /// <value></value>
         public bool AllowInteraction { get; set; } = true;
 
-        void Awake()
+        private void Awake()
         {
             MainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
             InputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
@@ -48,8 +77,15 @@ namespace NikkeViewerEX.Components
             InputManager.PointerHold.started -= DragNikke;
         }
 
+        /// <summary>
+        /// Invoke OnSkinChanged event.
+        /// </summary>
+        /// <param name="index"></param>
         public void InvokeChangeSkin(int index) => OnSkinChanged?.Invoke(index);
 
+        /// <summary>
+        /// Add MeshCollider component to Nikke.
+        /// </summary>
         public void AddMeshCollider()
         {
             MeshCollider meshCollider =
@@ -58,7 +94,13 @@ namespace NikkeViewerEX.Components
                 meshCollider.sharedMesh = meshFilter.sharedMesh;
         }
 
-        async void DragNikke(InputAction.CallbackContext ctx)
+#region Drag & Drop Nikke
+        /// <summary>
+        /// Perform Raycast from pointer to start dragging.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        private async void DragNikke(InputAction.CallbackContext ctx)
         {
             if (ctx.started && !NikkeData.Lock)
             {
@@ -73,7 +115,12 @@ namespace NikkeViewerEX.Components
             }
         }
 
-        async UniTask DragUpdate(GameObject clickedObject)
+        /// <summary>
+        /// Update Nikke position based on pointer.
+        /// </summary>
+        /// <param name="clickedObject"></param>
+        /// <returns></returns>
+        private async UniTask DragUpdate(GameObject clickedObject)
         {
             if (NikkeData.Lock)
                 return;
@@ -104,7 +151,11 @@ namespace NikkeViewerEX.Components
             await PostDragNikke();
         }
 
-        async UniTask PostDragNikke()
+        /// <summary>
+        /// Post action after dropping the Nikke.
+        /// </summary>
+        /// <returns></returns>
+        private async UniTask PostDragNikke()
         {
             if (this != null)
             {
@@ -115,4 +166,5 @@ namespace NikkeViewerEX.Components
             }
         }
     }
+#endregion
 }

@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 namespace NikkeViewerEX.Core
 {
+    /// <summary>
+    /// Component that manage user input.
+    /// </summary>
     [AddComponentMenu("Nikke Viewer EX/Core/Input Manager")]
     public class InputManager : MonoBehaviour
     {

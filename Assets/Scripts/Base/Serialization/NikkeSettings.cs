@@ -8,8 +8,13 @@ namespace NikkeViewerEX.Serialization
     public class NikkeSettings
     {
         public bool IsFirstTime = true;
+        public string LastOpenedDirectory;
         public bool HideUI;
-        public int FPS = 60;
+        public string FPS = "60";
+        public string BackgroundImage;
+        public string BackgroundMusic;
+        public float BackgroundMusicVolume = 0.5f;
+        public bool BackgroundMusicPlaying = true;
         public List<Nikke> NikkeList = new();
     }
 

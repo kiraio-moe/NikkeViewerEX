@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Spine;
 using Spine.Unity;
-using Unity.Logging;
 using UnityEngine;
 
 namespace NikkeViewerEX.Utils
@@ -54,7 +53,7 @@ namespace NikkeViewerEX.Utils
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Debug.LogError(ex);
                 return null;
             }
         }
@@ -72,7 +71,7 @@ namespace NikkeViewerEX.Utils
         /// <param name="loop">Loop Spine Skeleton Animation?</param>
         /// <param name="defaultAnimation">Default Spine Skeleton animation name to start.</param>
         /// <returns>The Skeleton Animation component it self.</returns>
-        public static async Task<SkeletonAnimation> InstantiateSpine(
+        public static async UniTask<SkeletonAnimation> InstantiateSpine(
             string skelPath,
             string atlasPath,
             List<string> texturesPath,
@@ -95,7 +94,7 @@ namespace NikkeViewerEX.Utils
 
                 for (int i = 0; i < texturesPath.Count; i++)
                 {
-                    Texture2D imageTexture = new(1, 1);
+                    Texture2D imageTexture = new(2, 2);
                     imageData = await WebRequestHelper.GetBinaryData(texturesPath[i]);
 
                     imageTexture.LoadImage(imageData);
@@ -136,7 +135,7 @@ namespace NikkeViewerEX.Utils
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Debug.LogError(ex);
                 return null;
             }
         }
@@ -220,15 +219,15 @@ namespace NikkeViewerEX.Utils
             foreach (string bone in bones)
             {
                 Vector2 bonePosition = BoneScreenPosition(skeletonAnimation, bone, rectTransform);
-                Log.Info($"Position: {bonePosition}");
+                Debug.Log($"Position: {bonePosition}");
                 if (bonePosition != Vector2.negativeInfinity)
                 {
-                    Log.Info($"Bone: {bone}, Position: {bonePosition}");
+                    Debug.Log($"Bone: {bone}, Position: {bonePosition}");
                     return bonePosition;
                 }
             }
 
-            Log.Warning("No bones found!");
+            Debug.LogWarning("No bones found!");
             return Vector2.negativeInfinity;
         }
     }

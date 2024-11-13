@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using Cysharp.Threading.Tasks;
-using Unity.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -36,7 +35,7 @@ namespace NikkeViewerEX.Utils
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Debug.LogError(ex);
                 return null;
             }
         }
@@ -65,7 +64,7 @@ namespace NikkeViewerEX.Utils
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Debug.LogError(ex);
                 return null;
             }
         }
@@ -97,7 +96,7 @@ namespace NikkeViewerEX.Utils
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Debug.LogError(ex);
                 return null;
             }
         }

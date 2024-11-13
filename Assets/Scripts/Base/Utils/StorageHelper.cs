@@ -1,4 +1,7 @@
 using System.IO;
+using Cysharp.Threading.Tasks;
+using SimpleFileBrowser;
+using TMPro;
 using UnityEngine;
 
 namespace NikkeViewerEX.Utils
@@ -18,6 +21,69 @@ namespace NikkeViewerEX.Utils
 #else
             return Directory.GetParent(Application.dataPath)!.ToString();
 #endif
+        }
+
+        /// <summary>
+        /// Open file dialog and fill the <paramref name="inputField"/>.
+        /// </summary>
+        /// <param name="inputField"></param>
+        /// <param name="windowTitle"></param>
+        public static async UniTask<string[]> OpenFileDialog(
+            TMP_InputField inputField,
+            string windowTitle = "Load File",
+            bool allowMultiple = false,
+            string initialPath = ""
+        )
+        {
+            var completionSource = new UniTaskCompletionSource<string[]>();
+
+            FileBrowser.ShowLoadDialog(
+                (paths) =>
+                {
+                    inputField.text = string.Join(", ", paths);
+                    completionSource.TrySetResult(paths);
+                },
+                () => completionSource.TrySetResult(null), // Set result to null if canceled
+                FileBrowser.PickMode.Files,
+                allowMultiple,
+                string.IsNullOrEmpty(initialPath) ? GetApplicationPath() : initialPath,
+                null,
+                windowTitle
+            );
+
+            string[] selectedPaths = await completionSource.Task;
+            return selectedPaths ?? new string[0];
+        }
+
+        /// <summary>
+        /// Open directory dialog and fill the <paramref name="inputField"/>.
+        /// </summary>
+        /// <param name="inputField"></param>
+        public static async UniTask<string[]> OpenDirectoryDialog(
+            TMP_InputField inputField,
+            string windowTitle = "Load Directory",
+            bool allowMultiple = false,
+            string initialPath = ""
+        )
+        {
+            var completionSource = new UniTaskCompletionSource<string[]>();
+
+            FileBrowser.ShowLoadDialog(
+                (paths) =>
+                {
+                    inputField.text = string.Join(", ", paths);
+                    completionSource.TrySetResult(paths);
+                },
+                () => completionSource.TrySetResult(null), // Set result to null if canceled
+                FileBrowser.PickMode.Folders,
+                allowMultiple,
+                string.IsNullOrEmpty(initialPath) ? GetApplicationPath() : initialPath,
+                null,
+                windowTitle
+            );
+
+            string[] selectedPaths = await completionSource.Task;
+            return selectedPaths ?? new string[0];
         }
     }
 }
