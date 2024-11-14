@@ -176,13 +176,13 @@ namespace NikkeViewerEX.Core
 
             BackgroundMusicVolumeSlider.value = BackgroundMusicAudio.volume =
                 NikkeSettings.BackgroundMusicVolume;
-            if (NikkeSettings.BackgroundMusicPlaying)
-            {
+            // if (NikkeSettings.BackgroundMusicPlaying)
+            // {
                 BackgroundMusicAudio.clip = await WebRequestHelper.GetAudioClip(
                     NikkeSettings.BackgroundMusic
                 );
                 BackgroundMusicAudio.Play();
-            }
+            // }
             BackgroundMusicStateToggle.isOn = NikkeSettings.BackgroundMusicPlaying;
             TogglePauseBGM(NikkeSettings.BackgroundMusicPlaying);
 
@@ -257,6 +257,7 @@ namespace NikkeViewerEX.Core
             item.name = viewer.name = string.IsNullOrEmpty(nikkeData.NikkeName)
                 ? Path.GetFileNameWithoutExtension(nikkeData.SkelPath)
                 : nikkeData.NikkeName;
+            item.ScaleValueText.text = $"{nikkeData.Scale.x:#0.0}x";
         }
 
         /// <summary>

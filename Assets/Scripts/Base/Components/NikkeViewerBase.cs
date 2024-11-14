@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Serialization;
@@ -85,7 +86,6 @@ namespace NikkeViewerEX.Components
 
         private void Update()
         {
-            // if (!NikkeData.Lock)
             ChangeNikkeScale();
         }
 
@@ -208,6 +208,14 @@ namespace NikkeViewerEX.Components
                     }
                 }
             }
+        }
+
+        public void AdjustNikkeScale(float scale)
+        {
+            Vector3 newScale = Vector3.one * scale;
+            transform.localScale = newScale;
+            NikkeData.Scale = newScale;
+            SettingsManager.SaveSettings().Forget();
         }
 
         public void ResetNikkeScale()

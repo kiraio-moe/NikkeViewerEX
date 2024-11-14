@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Components;
@@ -23,6 +24,10 @@ namespace NikkeViewerEX.UI
         public TMP_Dropdown SkinDropdown;
 
         [Space]
+        public Slider ScaleSlider;
+        public TextMeshProUGUI ScaleValueText;
+
+        [Space]
         public CanvasGroup ItemCanvasGroup;
         public Toggle LockButtonToggle;
 
@@ -40,6 +45,7 @@ namespace NikkeViewerEX.UI
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
             LockButtonToggle.onValueChanged.AddListener(ToggleLockNikke);
+            ScaleSlider.onValueChanged.AddListener(AdjustNikkeScale);
         }
 
         private void OnDestroy()
@@ -48,6 +54,24 @@ namespace NikkeViewerEX.UI
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
             LockButtonToggle.onValueChanged.RemoveListener(ToggleLockNikke);
+            ScaleSlider.onValueChanged.RemoveListener(AdjustNikkeScale);
+        }
+
+        public void ResetPositionAndScale()
+        {
+            if (Viewer == null)
+                return;
+            AdjustNikkeScale(1);
+            Viewer.transform.localPosition = Vector3.zero;
+            ScaleSlider.value = 1;
+        }
+
+        public void AdjustNikkeScale(float scale)
+        {
+            if (Viewer == null)
+                return;
+            Viewer.AdjustNikkeScale(scale);
+            ScaleValueText.text = $"{scale:#0.0}x";
         }
 
         /// <summary>
