@@ -2,12 +2,14 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using Cysharp.Threading.Tasks;
+using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace NikkeViewerEX.UI
@@ -37,15 +39,25 @@ namespace NikkeViewerEX.UI
         /// <value></value>
         public NikkeViewerBase Viewer { get; set; }
         SettingsManager settingsManager;
+        MainControl _mainControl;
+        TMP_InputField[] _inputFields;
 
         private void Awake()
         {
+            _mainControl = FindObjectsByType<MainControl>(FindObjectsSortMode.None)[0];
             settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
+            _inputFields = FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None);
+
             SkinDropdown.onValueChanged.AddListener(_ =>
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
             LockButtonToggle.onValueChanged.AddListener(ToggleLockNikke);
             ScaleSlider.onValueChanged.AddListener(AdjustNikkeScale);
+
+            Array.ForEach(
+                _inputFields,
+                inputField => inputField.onSelect.AddListener(_ => _mainControl.ShowOnScreenKeyboard("", inputField.gameObject))
+            );
         }
 
         private void OnDestroy()
@@ -55,6 +67,11 @@ namespace NikkeViewerEX.UI
             );
             LockButtonToggle.onValueChanged.RemoveListener(ToggleLockNikke);
             ScaleSlider.onValueChanged.RemoveListener(AdjustNikkeScale);
+
+            Array.ForEach(
+                _inputFields,
+                inputField => inputField.onSelect.RemoveListener(_ => _mainControl.ShowOnScreenKeyboard("", inputField.gameObject))
+            );
         }
 
         public void ResetPositionAndScale()

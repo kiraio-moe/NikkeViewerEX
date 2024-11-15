@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using DynamicPanels;
 using Gilzoide.SerializableCollections;
+using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Serialization;
 using NikkeViewerEX.UI;
@@ -35,6 +37,9 @@ namespace NikkeViewerEX.Core
         [SerializeField]
         private RectTransform m_WelcomePanel;
 
+        // [SerializeField]
+        // private NonNativeKeyboard m_OnScreenKeyboardPrefab;
+
         [Tooltip("Nikke List - List View content")]
         [SerializeField]
         private RectTransform m_NikkeListContent;
@@ -56,6 +61,15 @@ namespace NikkeViewerEX.Core
         }
 
         /// <summary>
+        /// The welcome panel.
+        /// </summary>
+        /// <value></value>
+        public RectTransform WelcomePanel
+        {
+            get => m_WelcomePanel;
+        }
+
+        /// <summary>
         /// Nikke List - List View content.
         /// </summary>
         /// <value></value>
@@ -65,13 +79,13 @@ namespace NikkeViewerEX.Core
         }
 
         /// <summary>
-        /// The welcome panel.
+        /// Get OnScreen Keyboard instance.
         /// </summary>
         /// <value></value>
-        public RectTransform WelcomePanel
-        {
-            get => m_WelcomePanel;
-        }
+        // public NonNativeKeyboard OnScreenKeyboard
+        // {
+        //     get => NonNativeKeyboard.Instance;
+        // }
 
         /// <summary>
         /// Event triggered after settings has been applied.
@@ -82,6 +96,10 @@ namespace NikkeViewerEX.Core
         private readonly SpineHelperBase spineHelper = new();
         private SettingsManager settingsManager;
 
+        private DynamicPanelsCanvas _dynamicPanelCanvas;
+        private GameObject _focusedInput;
+        private TMP_InputField[] _inputFields;
+
         // private InputManager inputManager;
 
         #region Initialization
@@ -89,6 +107,11 @@ namespace NikkeViewerEX.Core
         {
             // inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = GetComponent<SettingsManager>();
+            _dynamicPanelCanvas = FindObjectsByType<DynamicPanelsCanvas>(FindObjectsSortMode.None)[0];
+            _inputFields = FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None);
+
+            NonNativeKeyboard.Instance.OnTextSubmitted += OnScreenKeyboard_OnTextSubmitted;
+            PanelNotificationCenter.OnActiveTabChanged += PanelNotificationCenter_OnActiveTabChanged;
         }
 
         private void OnEnable()
@@ -101,10 +124,44 @@ namespace NikkeViewerEX.Core
         {
             // inputManager.ToggleHideUI.performed -= ToggleUI;
             m_HideUIToggle.onValueChanged.RemoveListener(ToggleHideUI);
+
+            PanelNotificationCenter.OnActiveTabChanged -= PanelNotificationCenter_OnActiveTabChanged;
+            NonNativeKeyboard.Instance.OnTextSubmitted -= OnScreenKeyboard_OnTextSubmitted;
+            Array.ForEach(
+                _inputFields,
+                inputField => inputField.onSelect.RemoveListener(_ => ShowOnScreenKeyboard("", inputField.gameObject))
+            );
         }
         #endregion
 
         #region Runtime - UI Bindings
+        /// <summary>
+        /// Show On-Screen Keyboard.
+        /// </summary>
+        /// <param name="initialText"></param>
+        /// <param name="focusedObject"></param>
+        public void ShowOnScreenKeyboard(string initialText, GameObject focusedObject)
+        {
+            NonNativeKeyboard.Instance.PresentKeyboard();
+            _focusedInput = focusedObject;
+        }
+
+        public void OnScreenKeyboard_OnTextSubmitted(object sender, EventArgs e)
+        {
+            NonNativeKeyboard keyboard = sender as NonNativeKeyboard;
+            if (_focusedInput.TryGetComponent(out TMP_InputField inputField))
+                inputField.text = keyboard.InputField.text;
+            _focusedInput = null;
+        }
+
+        private void PanelNotificationCenter_OnActiveTabChanged(PanelTab tab)
+        {
+            Array.ForEach(
+                _inputFields,
+                inputField => inputField.onSelect.AddListener(_ => ShowOnScreenKeyboard("", inputField.gameObject))
+            );
+        }
+
         /// <summary>
         /// Add Nikke List item.
         /// </summary>
