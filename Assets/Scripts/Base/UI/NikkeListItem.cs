@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Specialized;
 using System.IO;
-using Cysharp.Threading.Tasks;
-using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using NikkeViewerEX.Components;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace NikkeViewerEX.UI
@@ -56,7 +52,10 @@ namespace NikkeViewerEX.UI
 
             Array.ForEach(
                 _inputFields,
-                inputField => inputField.onSelect.AddListener(_ => _mainControl.ShowOnScreenKeyboard("", inputField.gameObject))
+                inputField =>
+                    inputField.onSelect.AddListener(_ =>
+                        _mainControl.ShowOnScreenKeyboard("", inputField.gameObject)
+                    )
             );
         }
 
@@ -70,7 +69,10 @@ namespace NikkeViewerEX.UI
 
             Array.ForEach(
                 _inputFields,
-                inputField => inputField.onSelect.RemoveListener(_ => _mainControl.ShowOnScreenKeyboard("", inputField.gameObject))
+                inputField =>
+                    inputField.onSelect.RemoveListener(_ =>
+                        _mainControl.ShowOnScreenKeyboard("", inputField.gameObject)
+                    )
             );
         }
 
@@ -132,6 +134,7 @@ namespace NikkeViewerEX.UI
             string[] paths = await StorageHelper.OpenFileDialog(
                 inputField,
                 "Load Nikke Assets",
+                true,
                 initialPath: settingsManager.NikkeSettings.LastOpenedDirectory
             );
             if (paths.Length > 0)

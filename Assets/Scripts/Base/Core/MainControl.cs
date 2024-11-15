@@ -12,7 +12,6 @@ using NikkeViewerEX.UI;
 using NikkeViewerEX.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace NikkeViewerEX.Core
@@ -79,15 +78,6 @@ namespace NikkeViewerEX.Core
         }
 
         /// <summary>
-        /// Get OnScreen Keyboard instance.
-        /// </summary>
-        /// <value></value>
-        // public NonNativeKeyboard OnScreenKeyboard
-        // {
-        //     get => NonNativeKeyboard.Instance;
-        // }
-
-        /// <summary>
         /// Event triggered after settings has been applied.
         /// </summary>
         public event OnSettingsAppliedHandler OnSettingsApplied;
@@ -96,7 +86,6 @@ namespace NikkeViewerEX.Core
         private readonly SpineHelperBase spineHelper = new();
         private SettingsManager settingsManager;
 
-        private DynamicPanelsCanvas _dynamicPanelCanvas;
         private GameObject _focusedInput;
         private TMP_InputField[] _inputFields;
 
@@ -107,11 +96,11 @@ namespace NikkeViewerEX.Core
         {
             // inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = GetComponent<SettingsManager>();
-            _dynamicPanelCanvas = FindObjectsByType<DynamicPanelsCanvas>(FindObjectsSortMode.None)[0];
             _inputFields = FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None);
 
             NonNativeKeyboard.Instance.OnTextSubmitted += OnScreenKeyboard_OnTextSubmitted;
-            PanelNotificationCenter.OnActiveTabChanged += PanelNotificationCenter_OnActiveTabChanged;
+            PanelNotificationCenter.OnActiveTabChanged +=
+                PanelNotificationCenter_OnActiveTabChanged;
         }
 
         private void OnEnable()
@@ -125,11 +114,15 @@ namespace NikkeViewerEX.Core
             // inputManager.ToggleHideUI.performed -= ToggleUI;
             m_HideUIToggle.onValueChanged.RemoveListener(ToggleHideUI);
 
-            PanelNotificationCenter.OnActiveTabChanged -= PanelNotificationCenter_OnActiveTabChanged;
+            PanelNotificationCenter.OnActiveTabChanged -=
+                PanelNotificationCenter_OnActiveTabChanged;
             NonNativeKeyboard.Instance.OnTextSubmitted -= OnScreenKeyboard_OnTextSubmitted;
             Array.ForEach(
                 _inputFields,
-                inputField => inputField.onSelect.RemoveListener(_ => ShowOnScreenKeyboard("", inputField.gameObject))
+                inputField =>
+                    inputField.onSelect.RemoveListener(_ =>
+                        ShowOnScreenKeyboard("", inputField.gameObject)
+                    )
             );
         }
         #endregion
@@ -158,7 +151,10 @@ namespace NikkeViewerEX.Core
         {
             Array.ForEach(
                 _inputFields,
-                inputField => inputField.onSelect.AddListener(_ => ShowOnScreenKeyboard("", inputField.gameObject))
+                inputField =>
+                    inputField.onSelect.AddListener(_ =>
+                        ShowOnScreenKeyboard("", inputField.gameObject)
+                    )
             );
         }
 

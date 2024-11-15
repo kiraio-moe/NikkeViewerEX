@@ -178,10 +178,10 @@ namespace NikkeViewerEX.Core
                 NikkeSettings.BackgroundMusicVolume;
             // if (NikkeSettings.BackgroundMusicPlaying)
             // {
-                BackgroundMusicAudio.clip = await WebRequestHelper.GetAudioClip(
-                    NikkeSettings.BackgroundMusic
-                );
-                BackgroundMusicAudio.Play();
+            BackgroundMusicAudio.clip = await WebRequestHelper.GetAudioClip(
+                NikkeSettings.BackgroundMusic
+            );
+            BackgroundMusicAudio.Play();
             // }
             BackgroundMusicStateToggle.isOn = NikkeSettings.BackgroundMusicPlaying;
             TogglePauseBGM(NikkeSettings.BackgroundMusicPlaying);
