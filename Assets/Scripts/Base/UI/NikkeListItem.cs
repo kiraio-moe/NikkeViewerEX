@@ -54,7 +54,7 @@ namespace NikkeViewerEX.UI
                 _inputFields,
                 inputField =>
                     inputField.onSelect.AddListener(_ =>
-                        _mainControl.ShowOnScreenKeyboard("", inputField.gameObject)
+                        _mainControl.ShowOnScreenKeyboard(inputField.text, inputField.gameObject)
                     )
             );
         }

@@ -96,7 +96,6 @@ namespace NikkeViewerEX.Core
         {
             // inputManager = FindObjectsByType<InputManager>(FindObjectsSortMode.None)[0];
             settingsManager = GetComponent<SettingsManager>();
-            _inputFields = FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None);
 
             NonNativeKeyboard.Instance.OnTextSubmitted += OnScreenKeyboard_OnTextSubmitted;
             PanelNotificationCenter.OnActiveTabChanged +=
@@ -121,7 +120,7 @@ namespace NikkeViewerEX.Core
                 _inputFields,
                 inputField =>
                     inputField.onSelect.RemoveListener(_ =>
-                        ShowOnScreenKeyboard("", inputField.gameObject)
+                        ShowOnScreenKeyboard(inputField.text, inputField.gameObject)
                     )
             );
         }
@@ -135,7 +134,7 @@ namespace NikkeViewerEX.Core
         /// <param name="focusedObject"></param>
         public void ShowOnScreenKeyboard(string initialText, GameObject focusedObject)
         {
-            NonNativeKeyboard.Instance.PresentKeyboard();
+            NonNativeKeyboard.Instance.PresentKeyboard(initialText);
             _focusedInput = focusedObject;
         }
 
@@ -149,6 +148,7 @@ namespace NikkeViewerEX.Core
 
         private void PanelNotificationCenter_OnActiveTabChanged(PanelTab tab)
         {
+            _inputFields = FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None);
             Array.ForEach(
                 _inputFields,
                 inputField =>

@@ -143,7 +143,9 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 1.0.0
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: -944628639613478452, guid: 1ea7a2be3fc362a40b390063396e2e54, type: 3}
+  - {fileID: 11400000, guid: 5d7555ebb48604d44aad056a46bd9918, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -580,10 +582,12 @@ PlayerSettings:
   scriptingDefineSymbols: {}
   additionalCompilerArguments: {}
   platformArchitecture: {}
-  scriptingBackend: {}
+  scriptingBackend:
+    Standalone: 1
   il2cppCompilerConfiguration: {}
   il2cppCodeGeneration: {}
-  il2cppStacktraceInformation: {}
+  il2cppStacktraceInformation:
+    Standalone: 1
   managedStrippingLevel:
     Standalone: 3
   incrementalIl2cppBuild: {}
@@ -595,7 +599,7 @@ PlayerSettings:
   gcIncremental: 1
   gcWBarrierValidation: 0
   apiCompatibilityLevelPerPlatform: {}
-  editorAssembliesCompatibilityLevel: 1
+  editorAssembliesCompatibilityLevel: 3
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Nikke Viewer EX
@@ -673,7 +677,8 @@ PlayerSettings:
   hmiLogStartupTiming: 0
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
-  captureStartupLogs: {}
+  captureStartupLogs:
+    Standalone: 1
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
   cloudProjectId: 

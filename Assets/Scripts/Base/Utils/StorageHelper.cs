@@ -35,8 +35,7 @@ namespace NikkeViewerEX.Utils
             string initialPath = ""
         )
         {
-            var completionSource = new UniTaskCompletionSource<string[]>();
-
+            UniTaskCompletionSource<string[]> completionSource = new();
             FileBrowser.ShowLoadDialog(
                 (paths) =>
                 {
@@ -50,9 +49,7 @@ namespace NikkeViewerEX.Utils
                 null,
                 windowTitle
             );
-
-            string[] selectedPaths = await completionSource.Task;
-            return selectedPaths ?? new string[0];
+            return await completionSource.Task ?? new string[0];
         }
 
         /// <summary>
@@ -66,8 +63,7 @@ namespace NikkeViewerEX.Utils
             string initialPath = ""
         )
         {
-            var completionSource = new UniTaskCompletionSource<string[]>();
-
+            UniTaskCompletionSource<string[]> completionSource = new();
             FileBrowser.ShowLoadDialog(
                 (paths) =>
                 {
@@ -81,9 +77,7 @@ namespace NikkeViewerEX.Utils
                 null,
                 windowTitle
             );
-
-            string[] selectedPaths = await completionSource.Task;
-            return selectedPaths ?? new string[0];
+            return await completionSource.Task ?? new string[0];
         }
     }
 }

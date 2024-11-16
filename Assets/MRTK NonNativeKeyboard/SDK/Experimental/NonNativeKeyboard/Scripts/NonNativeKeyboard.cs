@@ -4,6 +4,7 @@
 //using Microsoft.MixedReality.Toolkit.Input;
 //using Microsoft.MixedReality.Toolkit.Utilities;
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +14,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
     /// <summary>
     /// A simple general use keyboard that is ideal for AR/VR applications that do not provide a native keyboard.
     /// </summary>
-    /// 
+    ///
     /// NOTE: This keyboard will not automatically appear when you select an InputField in your
     ///       Canvas. In order for the keyboard to appear you must call Keyboard.Instance.PresentKeyboard(string).
     ///       To retrieve the input from the Keyboard, subscribe to the OnTextSubmitted event. Note that
@@ -24,7 +25,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
         public static NonNativeKeyboard Instance { get; private set; }
 
         /// <summary>
-        /// Layout type enum for the type of keyboard layout to use.  
+        /// Layout type enum for the type of keyboard layout to use.
         /// This is used when spawning to enable the correct keys based on layout type.
         /// </summary>
         public enum LayoutType
@@ -226,7 +227,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
 
         /// <summary>
         /// The default color of the mike key.
-        /// </summary>        
+        /// </summary>
         private Color _defaultColor;
 
         /// <summary>
@@ -235,7 +236,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
         private Image _recordImage;
 
         /// <summary>
-        /// User can add an audio source to the keyboard to have a click be heard on tapping a key 
+        /// User can add an audio source to the keyboard to have a click be heard on tapping a key
         /// </summary>
         private AudioSource _audioSource;
 
@@ -332,7 +333,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
         /// Called whenever the keyboard is disabled or deactivated.
         /// </summary>
         protected void OnDisable()
-        {            
+        {
             m_LastKeyboardLayout = LayoutType.Alpha;
             Clear();
         }
@@ -394,6 +395,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
             //    dictationSystem.StopRecording();
             //}
 
+            new WaitForSecondsRealtime(1f);
             Instance = null;
         }
 
@@ -451,7 +453,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
 
         #endregion Present Functions
         /// <summary>
-        /// Function to reposition the Keyboard based on target position and vertical offset 
+        /// Function to reposition the Keyboard based on target position and vertical offset
         /// </summary>
         /// <param name="kbPos">World position for keyboard</param>
         /// <param name="verticalOffset">Optional vertical offset of keyboard</param>
@@ -463,7 +465,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
         }
 
         /// <summary>
-        /// Function to reposition the keyboard based on target transform and collider information 
+        /// Function to reposition the keyboard based on target transform and collider information
         /// </summary>
         /// <param name="objectTransform">Transform of target object to remain relative to</param>
         /// <param name="aCollider">Optional collider information for offset placement</param>
@@ -904,7 +906,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
             //    dictationSystem.StopRecording();
             //}
             //SetMicrophoneDefault();
-            OnClosed(this, EventArgs.Empty);            
+            OnClosed(this, EventArgs.Empty);
             gameObject.SetActive(false);
         }
 
@@ -925,7 +927,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
         #endregion
 
         /// <summary>
-        /// Method to set the sizes by code, as the properties are private. 
+        /// Method to set the sizes by code, as the properties are private.
         /// Useful for scaling 'from the outside', for instance taking care of differences between
         /// immersive headsets and HoloLens
         /// </summary>
