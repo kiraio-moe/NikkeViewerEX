@@ -80,7 +80,8 @@ namespace NikkeViewerEX.Utils
             float spineScale = 1f,
             float spineScaleMultiplier = 0.0115f,
             bool loop = false,
-            string defaultAnimation = "idle"
+            string defaultAnimation = "idle",
+            string defaultSkin = "default"
         )
         {
             try
@@ -125,7 +126,14 @@ namespace NikkeViewerEX.Utils
                     targetGameObject,
                     skeletonDataAsset
                 );
+
                 skeletonAnimation.Initialize(false);
+                // Set default skin that has any mesh data to prevent Degenerate Triangle error.
+                foreach (Skin skin in skeletonData.Skins)
+                {
+                    if (CheckSkinMesh(skin))
+                        skeletonAnimation.Skeleton.SetSkin(skin.Name);
+                }
                 skeletonAnimation.Skeleton.SetSlotsToSetupPose();
                 skeletonAnimation.AnimationState.SetAnimation(0, defaultAnimation, loop);
                 skeletonAnimation.Update(0);
@@ -138,6 +146,24 @@ namespace NikkeViewerEX.Utils
                 Debug.LogError(ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Check for any Mesh data in <paramref name="skin"/>.
+        /// </summary>
+        /// <param name="skin"></param>
+        /// <returns></returns>
+        public static bool CheckSkinMesh(Skin skin)
+        {
+            foreach (Skin.SkinEntry entry in skin.Attachments)
+            {
+                if (entry.Attachment is MeshAttachment meshAttachment)
+                {
+                    if (meshAttachment.Vertices.Length > 0 || meshAttachment.Triangles.Length > 0)
+                        return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

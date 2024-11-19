@@ -395,8 +395,8 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI
             //    dictationSystem.StopRecording();
             //}
 
-            new WaitForSecondsRealtime(1f);
-            Instance = null;
+            // new WaitForSecondsRealtime(1f);
+            // Instance = null;
         }
 
         #region Present Functions
