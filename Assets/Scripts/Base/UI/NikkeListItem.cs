@@ -116,6 +116,7 @@ namespace NikkeViewerEX.UI
             {
                 settingsManager.NikkeSettings.NikkeList.Remove(Viewer.NikkeData);
                 Destroy(Viewer.gameObject);
+                Destroy(Viewer.NikkeNameText.gameObject);
             }
             Destroy(gameObject);
         }

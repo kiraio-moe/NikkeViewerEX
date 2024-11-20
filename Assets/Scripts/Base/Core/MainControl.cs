@@ -224,7 +224,11 @@ namespace NikkeViewerEX.Core
 
                     if (
                         item.Viewer.NikkeData.VoicesSource.Count == 0
-                        && !string.IsNullOrEmpty(item.VoicesSourceText.text)
+                        || !string.IsNullOrEmpty(item.VoicesSourceText.text)
+                        || !item
+                            .VoicesSourceText.text.Split(", ")
+                            .ToList()
+                            .SequenceEqual(item.Viewer.NikkeData.VoicesPath)
                     )
                     {
                         item.Viewer.NikkeData.VoicesSource = voicesSource;
@@ -233,6 +237,8 @@ namespace NikkeViewerEX.Core
                             item.Viewer.NikkeData.VoicesPath
                         );
                     }
+                    else
+                        item.Viewer.TouchVoices = null;
                 }
 
                 nikkeDataList.Add(item.Viewer.NikkeData);
@@ -291,6 +297,13 @@ namespace NikkeViewerEX.Core
                         .ToList()
                         .SequenceEqual(item.Viewer.NikkeData.TexturesPath)
                 );
+            // || (
+            //     !string.IsNullOrEmpty(item.VoicesSourceText.text)
+            //     && !item
+            //         .VoicesSourceText.text.Split(", ")
+            //         .ToList()
+            //         .SequenceEqual(item.Viewer.NikkeData.VoicesPath)
+            // );
         }
         #endregion
 
