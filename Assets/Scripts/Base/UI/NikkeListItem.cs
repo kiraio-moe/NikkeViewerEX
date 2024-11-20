@@ -44,6 +44,8 @@ namespace NikkeViewerEX.UI
             settingsManager = FindObjectsByType<SettingsManager>(FindObjectsSortMode.None)[0];
             _inputFields = FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None);
 
+            NikkeNameText.onValueChanged.AddListener(RefreshNikkeName);
+            NikkeNameText.onEndEdit.AddListener(RefreshNikkeName);
             SkinDropdown.onValueChanged.AddListener(_ =>
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
@@ -61,6 +63,8 @@ namespace NikkeViewerEX.UI
 
         private void OnDestroy()
         {
+            NikkeNameText.onValueChanged.RemoveListener(RefreshNikkeName);
+            NikkeNameText.onEndEdit.RemoveListener(RefreshNikkeName);
             SkinDropdown.onValueChanged.RemoveListener(_ =>
                 Viewer.InvokeChangeSkin(SkinDropdown.value)
             );
@@ -119,10 +123,14 @@ namespace NikkeViewerEX.UI
         /// <summary>
         /// Update Nikke when leave Input Field.
         /// </summary>
-        public void RefreshNikkeName()
+        public void RefreshNikkeName(string name)
         {
             if (Viewer != null && !string.IsNullOrEmpty(NikkeNameText.text))
-                Viewer.NikkeData.NikkeName = Viewer.name = NikkeNameText.text;
+                Viewer.NikkeNameText.name =
+                    Viewer.NikkeNameText.text =
+                    Viewer.NikkeData.NikkeName =
+                    Viewer.name =
+                        name;
         }
 
         public async void OpenNikkeAssetsDialog(TMP_InputField inputField)

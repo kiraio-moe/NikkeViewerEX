@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d7399c96e117b4696092eb7626f3f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NikkeData:
+  NikkeData:
     NikkeName: 
     AssetName: 
     SkelPath: 
@@ -53,9 +53,14 @@ MonoBehaviour:
     TexturesPath: []
     VoicesSource: []
     VoicesPath: []
+    Skin: default
+    Scale: {x: 1, y: 1, z: 1}
     Position: {x: 0, y: 0}
+    Lock: 0
+  TouchVoiceIndex: 0
   m_DefaultAnimation: idle
   m_TouchAnimation: action
+  m_NikkeNamePrefab: {fileID: 4028676652664674605, guid: 4bcb2559d90830649aaebd933d51f65f, type: 3}
 --- !u!82 &2059015657938671438
 AudioSource:
   m_ObjectHideFlags: 0
@@ -67,6 +72,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

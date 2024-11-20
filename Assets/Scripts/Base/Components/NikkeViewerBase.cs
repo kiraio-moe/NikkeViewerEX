@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Serialization;
 using NikkeViewerEX.Utils;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,7 +27,8 @@ namespace NikkeViewerEX.Components
         public MainControl MainControl { get; private set; }
         public SettingsManager SettingsManager { get; private set; }
         public InputManager InputManager { get; private set; }
-        readonly SpineHelperBase spineHelper = new SpineHelperBase();
+        readonly SpineHelperBase spineHelper = new();
+        public TextMeshPro NikkeNameText { get; set; }
 
         readonly float dragSmoothTime = .1f;
         Vector2 dragObjectVelocity;
@@ -76,16 +78,24 @@ namespace NikkeViewerEX.Components
         public virtual void OnEnable()
         {
             InputManager.PointerHold.started += DragNikke;
+            MainControl.HideUIToggle.onValueChanged.AddListener(ToggleDisplayName);
         }
 
         public virtual void OnDestroy()
         {
             InputManager.PointerHold.started -= DragNikke;
+            MainControl.HideUIToggle.onValueChanged.RemoveListener(ToggleDisplayName);
         }
 
-        private void Update()
+        public virtual void Update()
         {
             ChangeNikkeScale();
+        }
+
+
+        public void ToggleDisplayName(bool state)
+        {
+            NikkeNameText.gameObject.SetActive(!state);
         }
 
         /// <summary>

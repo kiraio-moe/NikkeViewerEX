@@ -126,6 +126,12 @@ namespace NikkeViewerEX.Utils
                     skeletonDataAsset
                 );
                 skeletonAnimation.Initialize(false);
+                // Set default skin that has any mesh data to prevent Degenerate Triangle error.
+                foreach (Skin skin in skeletonData.Skins)
+                {
+                    if (CheckSkinMesh(skin))
+                        skeletonAnimation.Skeleton.SetSkin(skin.Name);
+                }
                 skeletonAnimation.Skeleton.SetSlotsToSetupPose();
                 skeletonAnimation.AnimationState.SetAnimation(0, defaultAnimation, loop);
                 skeletonAnimation.Update(0);
@@ -138,6 +144,80 @@ namespace NikkeViewerEX.Utils
                 Debug.LogError(ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Check for any Mesh data in <paramref name="skin"/>.
+        /// </summary>
+        /// <param name="skin"></param>
+        /// <returns></returns>
+        public static bool CheckSkinMesh(Skin skin)
+        {
+            foreach (Skin.SkinEntry entry in skin.Attachments)
+            {
+                if (entry.Attachment is MeshAttachment meshAttachment)
+                {
+                    if (meshAttachment.Vertices.Length > 0 || meshAttachment.Triangles.Length > 0)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public static Vector2 GetSkeletonBounds(Skeleton skeleton)
+        {
+            float minX = float.MaxValue;
+            float minY = float.MaxValue;
+            float maxX = float.MinValue;
+            float maxY = float.MinValue;
+
+            foreach (Slot slot in skeleton.Slots)
+            {
+                if (!slot.Bone.Active)
+                    continue;
+
+                Attachment attachment = slot.Attachment;
+                if (attachment == null)
+                    continue;
+
+                float[] vertices = new float[8]; // Enough for a quad (4 vertices)
+
+                if (attachment is RegionAttachment regionAttachment)
+                {
+                    // Get world vertices for RegionAttachment
+                    regionAttachment.ComputeWorldVertices(slot, vertices, 0);
+                }
+                else if (attachment is MeshAttachment meshAttachment)
+                {
+                    // Get world vertices for MeshAttachment
+                    int vertexCount = meshAttachment.WorldVerticesLength;
+                    vertices = new float[vertexCount];
+                    meshAttachment.ComputeWorldVertices(slot, 0, vertexCount, vertices, 0, 2);
+                }
+                else
+                    continue; // Skip other attachment types
+
+                // Update bounds
+                for (int i = 0; i < vertices.Length; i += 2)
+                {
+                    float x = vertices[i];
+                    float y = vertices[i + 1];
+                    if (x < minX)
+                        minX = x;
+                    if (y < minY)
+                        minY = y;
+                    if (x > maxX)
+                        maxX = x;
+                    if (y > maxY)
+                        maxY = y;
+                }
+            }
+
+            // Calculate width and height
+            float width = maxX - minX;
+            float height = maxY - minY;
+
+            return new Vector2(width, height);
         }
 
         /// <summary>

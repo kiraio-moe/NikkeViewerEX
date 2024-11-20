@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using NikkeViewerEX.Core;
 using NikkeViewerEX.Utils;
 using Spine.Unity;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +19,10 @@ namespace NikkeViewerEX.Components
 
         [SerializeField]
         string m_TouchAnimation = "action";
+
+        [Header("UI")]
+        [SerializeField]
+        TextMeshPro m_NikkeNamePrefab;
 
         SkeletonAnimation skeletonAnimation;
 
@@ -37,6 +42,13 @@ namespace NikkeViewerEX.Components
             SettingsManager.OnSettingsLoaded -= SpawnNikke;
             InputManager.PointerClick.performed -= Interact;
             OnSkinChanged -= ChangeSkin;
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if (NikkeNameText != null)
+                UpdateDisplayName(NikkeNameText);
         }
 
         void ChangeSkin(int index)
@@ -61,6 +73,7 @@ namespace NikkeViewerEX.Components
                         .Skeleton.Data.Skins?.Select(skin => skin.Name)
                         .ToArray();
                     AddMeshCollider();
+                    NikkeNameText = CreateDisplayName(NikkeData.NikkeName);
                 }
             }
             catch (Exception ex)
@@ -80,6 +93,42 @@ namespace NikkeViewerEX.Components
                 spineScale: 0.25f,
                 loop: true
             );
+        }
+
+        private TextMeshPro CreateDisplayName(string name)
+        {
+            TextMeshPro tmp = Instantiate(m_NikkeNamePrefab, Vector3.zero, Quaternion.identity);
+            tmp.transform.SetParent(SettingsManager.BackgroundImage.transform.parent, false);
+            tmp.transform.localScale = Vector3.one;
+            tmp.name = tmp.text = name;
+            return tmp;
+        }
+
+        private void UpdateDisplayName(TextMeshPro tmp)
+        {
+            if (skeletonAnimation == null)
+                return;
+
+            Vector2 skeletonBounds = SpineHelper.GetSkeletonBounds(skeletonAnimation.Skeleton);
+
+            Vector3 worldPosition = new Vector3(
+                transform.position.x * transform.localScale.x,
+                (transform.position.y + skeletonBounds.y + 0.5f) * transform.localScale.y,
+                transform.position.z
+            );
+
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+
+            // Convert screen position to Canvas space
+            RectTransform canvasRect = tmp.canvas.GetComponent<RectTransform>();
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPosition,
+                Camera.main,
+                out Vector2 canvasPosition
+            );
+
+            tmp.rectTransform.anchoredPosition = canvasPosition;
         }
 
         void Interact(InputAction.CallbackContext ctx)

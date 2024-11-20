@@ -78,6 +78,15 @@ namespace NikkeViewerEX.Core
         }
 
         /// <summary>
+        /// Hide all UI toggle.
+        /// </summary>
+        /// <value></value>
+        public Toggle HideUIToggle
+        {
+            get => m_HideUIToggle;
+        }
+
+        /// <summary>
         /// Event triggered after settings has been applied.
         /// </summary>
         public event OnSettingsAppliedHandler OnSettingsApplied;
