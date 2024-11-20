@@ -123,15 +123,13 @@ namespace NikkeViewerEX.Components
         /// <returns></returns>
         private async void DragNikke(InputAction.CallbackContext ctx)
         {
-            if (ctx.started && !NikkeData.Lock)
+            if (!NikkeData.Lock)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    if (hit.collider.TryGetComponent(out NikkeViewerBase _))
-                    {
+                    if (hit.collider.TryGetComponent(out NikkeViewerBase viewer) && viewer == this)
                         await DragUpdate(hit.collider.gameObject);
-                    }
                 }
             }
         }
